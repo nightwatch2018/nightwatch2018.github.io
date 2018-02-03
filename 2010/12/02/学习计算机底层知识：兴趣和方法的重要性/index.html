@@ -83,7 +83,7 @@
 
 
 
-  <meta name="keywords" content="java,多线程," />
+  <meta name="keywords" content="计算机基础，学习方法," />
 
 
 
@@ -94,18 +94,18 @@
 
 
 
-<meta name="description" content="背景引入&amp;emsp;&amp;emsp;在讨论技术细节之前先说个场景：一家饭店的后厨，有炒菜大师傅和切菜工人们。切菜工人每准备好相应食材后放到操作台上，大师傅们则根据自己擅长的菜系取对应的食材。大师傅们做完一个菜后就会等着下一份食材，才能继续下一道菜。这一段提供了两个线索：  没有食材的情况下，大师傅们是要在后厨待命的；不能因此回家歇会儿再来。 切菜工提供切好的食材，这样才能让大师傅们继续做下一道菜。">
-<meta name="keywords" content="java,多线程">
+<meta name="description" content="一、兴趣的产生&amp;emsp;&amp;emsp;我在前段日子关注了一阵子号称与同类数据源框架产品执行效率快几十倍的BoneCP，也粗略的看了下其源码实现。其内部核心是采用了JDK5.0新增的并发框架来实现的。之后顺藤摸瓜的学习了下java.util.concurrent包中的内容，期间看了不少PDF资料，初步有了大致的了解，也就是说只停留了在API使用层面上。对这个并发框架的内部实现原理理解的不是很透彻，因">
+<meta name="keywords" content="计算机基础，学习方法">
 <meta property="og:type" content="article">
-<meta property="og:title" content="多线程基础：通信与协作">
-<meta property="og:url" content="http://yoursite.com/2018/01/30/multi-thread1/index.html">
+<meta property="og:title" content="学习计算机底层知识：兴趣和方法的重要性">
+<meta property="og:url" content="http://yoursite.com/2010/12/02/学习计算机底层知识：兴趣和方法的重要性/index.html">
 <meta property="og:site_name" content="探索，永无止境">
-<meta property="og:description" content="背景引入&amp;emsp;&amp;emsp;在讨论技术细节之前先说个场景：一家饭店的后厨，有炒菜大师傅和切菜工人们。切菜工人每准备好相应食材后放到操作台上，大师傅们则根据自己擅长的菜系取对应的食材。大师傅们做完一个菜后就会等着下一份食材，才能继续下一道菜。这一段提供了两个线索：  没有食材的情况下，大师傅们是要在后厨待命的；不能因此回家歇会儿再来。 切菜工提供切好的食材，这样才能让大师傅们继续做下一道菜。">
+<meta property="og:description" content="一、兴趣的产生&amp;emsp;&amp;emsp;我在前段日子关注了一阵子号称与同类数据源框架产品执行效率快几十倍的BoneCP，也粗略的看了下其源码实现。其内部核心是采用了JDK5.0新增的并发框架来实现的。之后顺藤摸瓜的学习了下java.util.concurrent包中的内容，期间看了不少PDF资料，初步有了大致的了解，也就是说只停留了在API使用层面上。对这个并发框架的内部实现原理理解的不是很透彻，因">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-30T14:05:14.348Z">
+<meta property="og:updated_time" content="2018-02-03T10:55:59.806Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="多线程基础：通信与协作">
-<meta name="twitter:description" content="背景引入&amp;emsp;&amp;emsp;在讨论技术细节之前先说个场景：一家饭店的后厨，有炒菜大师傅和切菜工人们。切菜工人每准备好相应食材后放到操作台上，大师傅们则根据自己擅长的菜系取对应的食材。大师傅们做完一个菜后就会等着下一份食材，才能继续下一道菜。这一段提供了两个线索：  没有食材的情况下，大师傅们是要在后厨待命的；不能因此回家歇会儿再来。 切菜工提供切好的食材，这样才能让大师傅们继续做下一道菜。">
+<meta name="twitter:title" content="学习计算机底层知识：兴趣和方法的重要性">
+<meta name="twitter:description" content="一、兴趣的产生&amp;emsp;&amp;emsp;我在前段日子关注了一阵子号称与同类数据源框架产品执行效率快几十倍的BoneCP，也粗略的看了下其源码实现。其内部核心是采用了JDK5.0新增的并发框架来实现的。之后顺藤摸瓜的学习了下java.util.concurrent包中的内容，期间看了不少PDF资料，初步有了大致的了解，也就是说只停留了在API使用层面上。对这个并发框架的内部实现原理理解的不是很透彻，因">
 
 
 
@@ -135,13 +135,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/01/30/multi-thread1/"/>
+  <link rel="canonical" href="http://yoursite.com/2010/12/02/学习计算机底层知识：兴趣和方法的重要性/"/>
 
 
 
 
 
-  <title>多线程基础：通信与协作 | 探索，永无止境</title>
+  <title>学习计算机底层知识：兴趣和方法的重要性 | 探索，永无止境</title>
   
 
 
@@ -278,7 +278,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/30/multi-thread1/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2010/12/02/学习计算机底层知识：兴趣和方法的重要性/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="nightwatcher">
@@ -295,7 +295,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">多线程基础：通信与协作</h1>
+          <h1 class="post-title" itemprop="name headline">学习计算机底层知识：兴趣和方法的重要性</h1>
         
 
         <div class="post-meta">
@@ -307,8 +307,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-30T22:00:21+08:00">
-                2018-01-30
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2010-12-02T13:20:32+08:00">
+                2010-12-02
               </time>
             
 
@@ -330,8 +330,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java基础/" itemprop="url" rel="index">
-                    <span itemprop="name">java基础</span>
+                  <a href="/categories/计算机基础/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机基础</span>
                   </a>
                 </span>
 
@@ -372,15 +372,13 @@
       
 
       
-        <h2 id="背景引入"><a href="#背景引入" class="headerlink" title="背景引入"></a>背景引入</h2><p>&emsp;&emsp;在讨论技术细节之前先说个场景：一家饭店的后厨，有炒菜大师傅和切菜工人们。切菜工人每准备好相应食材后放到操作台上，大师傅们则根据自己擅长的菜系取对应的食材。大师傅们做完一个菜后就会等着下一份食材，才能继续下一道菜。这一段提供了两个线索：</p>
-<ol>
-<li>没有食材的情况下，大师傅们是要在后厨待命的；不能因此回家歇会儿再来。</li>
-<li>切菜工提供切好的食材，这样才能让大师傅们继续做下一道菜。</li>
-</ol>
-<p>&emsp;&emsp;假设线程之间无法通信，一条线程完成自身的任务后就随之销毁了，再有任务就会再重新创建一条线程出来，前后两次的开销极度浪费，类比第一条，也就是大师傅回家歇会儿而后再来的情况。</p>
-<p>&emsp;&emsp;为了不出现这种情况，可以让这条线程等待一个条件的满足，对应着大师傅来说，就是等待食材准备好；而食材的准备是由切菜工人负责的，切菜工人是用来食材准好并通知大师傅们做下一道菜。</p>
-<h2 id="线程间的通信与协作"><a href="#线程间的通信与协作" class="headerlink" title="线程间的通信与协作"></a>线程间的通信与协作</h2><p>&emsp;&emsp;介绍Object类中的wait()和notify()。。。。</p>
-<h2 id="存在的问题及解决方案"><a href="#存在的问题及解决方案" class="headerlink" title="存在的问题及解决方案"></a>存在的问题及解决方案</h2><h3 id="过早唤醒"><a href="#过早唤醒" class="headerlink" title="过早唤醒"></a>过早唤醒</h3><h3 id="信号丢失"><a href="#信号丢失" class="headerlink" title="信号丢失"></a>信号丢失</h3><h3 id="虚假唤醒"><a href="#虚假唤醒" class="headerlink" title="虚假唤醒"></a>虚假唤醒</h3><h3 id="上下文切换的开销"><a href="#上下文切换的开销" class="headerlink" title="上下文切换的开销"></a>上下文切换的开销</h3>
+        <h3 id="一、兴趣的产生"><a href="#一、兴趣的产生" class="headerlink" title="一、兴趣的产生"></a>一、兴趣的产生</h3><p>&emsp;&emsp;我在前段日子关注了一阵子号称与同类数据源框架产品执行效率快几十倍的BoneCP，也粗略的看了下其源码实现。其内部核心是采用了JDK5.0新增的并发框架来实现的。之后顺藤摸瓜的学习了下java.util.concurrent包中的内容，期间看了不少PDF资料，初步有了大致的了解，也就是说只停留了在API使用层面上。对这个并发框架的内部实现原理理解的不是很透彻，因为看懂源码也仅仅是在API内部看懂了，并不见得能够挖掘出它的本质。个人感觉今后若还以这样的方式学习新潮技术，路只会越走越窄。因此萌生了学习计算机底层知识的浓厚兴趣。</p>
+<h3 id="二、方法的运用"><a href="#二、方法的运用" class="headerlink" title="二、方法的运用"></a>二、方法的运用</h3><h4 id="1-背景"><a href="#1-背景" class="headerlink" title="1.背景"></a>1.背景</h4><p>&emsp;&emsp;介绍这些方法之前，先看看它们是在什么背景或情景下产生出来并运用的。<br>&emsp;&emsp;我本人没有正式地系统学习过计算机底层知识的经历，诸如：操作系统、数据结构、编译原理等基础性科目，但是这些科目我零零散散地都有自学补习过，苦于基础知识晦涩难懂，并且也是自学的，所以都没有坚持下来，各个科目都是浮于表面的理解，没有过太深入性的思考。<br><a id="more"></a><br>&emsp;&emsp;时光荏苒，做程序员已然有四年的光景了，至今不能确切了解，换句话说，不能够在脑海里画出一幅图：我编写的程序代码在计算机中是怎样地处理和执行。为此我感到有些惶恐，有些无助，有些不安。我居然对计算机是那么的不了解，根本就对计算机内部的处理流程没有一个正确的认知，也可以说就脑子就没这个弦。不过我仍然操纵着计算机，重复着编写重复性的代码工作，貌似还有来道趣的。当我知道要去深入学习计算机底层知识开始，我就认为那些行为仅供自娱自乐罢了。<br>&emsp;&emsp;为什么说是自娱自乐？自己按照着框架开发者给出的文档，告诉你有他们提供了哪些功能，你按照文档上面一步一步地跟着做下去，就知道怎么使用了，这难道不是在自娱自乐么？先抛开了解框架的设计思想和读懂源码不说，主要关注的是这个框架是用到了什么底层知识。比如说Struts框架，他底层就是用到了HTTP协议。为了给我这四年的程序员生涯，以及以后，多少要有个交待，至少我要能知道计算机是怎么执行我写的代码。目的虽然是很简单的，不过确实能引出很多思路来，就看敢不敢去尝试，兴趣就是为达到既定目标的加速剂。</p>
+<h4 id="2-书籍"><a href="#2-书籍" class="headerlink" title="2.书籍"></a>2.书籍</h4><p>&emsp;&emsp;在写这篇博文之前，我已经自学一段时间了。阅读的书籍有两本：<br>&emsp;&emsp;（1）《深入理解计算机系统（第二版）》<br>&emsp;&emsp;这本书是以程序员角度来讲述计算机操作系统的知识点，覆盖面很全，侧重于编程层面。译者也是很用心的翻译，除了我遇到了不懂的知识点之外，至少我读到的前三章还未发现晦涩难懂的词句。<br>&emsp;&emsp;（2）《汇编语言（第二版）》（王爽编著）<br>&emsp;&emsp;这本书被网上很多朋友推荐，也确实不错，颠覆了以往此类书籍的编排方式；而且书中内容讲的也是明明白白，看的过程中不会遇到太大的阻碍。一些关于计算机系统的基础概念我都是从这本书中理解到的。  </p>
+<h4 id="3-方法"><a href="#3-方法" class="headerlink" title="3.方法"></a>3.方法</h4><p>&emsp;&emsp;(1)交叉阅读<br>&emsp;&emsp;我一开始是直接读《深入二》，读到第三章的时候我就读不下去了，因为里面出现的许多概念我都是很模糊的，只能以“逻辑角度”去理解书中的内容，而不是从“物理（本质）角度”去理解的；再往下读的话不但效果不好，而且担心会绕弯路。我采取的方法就是先把这些概念搞清楚，搞透彻，能够在脑海当中形成“第一印象”，再继续前进。<br>&emsp;&emsp;正好我在网上搜索有关计算机底层基础概念的相关内容时，发现了被很多人推荐去看的《汇编二》。下了一个电子版，慢慢细读起来。这时“进程”切换到了《汇编二》。恩，果然没错。这种方法起到了应有的作用，解决了我在《深入二》中遇到的大部分疑问，《汇编二》看到一定程度后，“进程”切换回《深入二》，如此反复交叉阅读，效果还是蛮不错的。一边能学习计算机系统，一边还能学习汇编语言。这两本书在某些知识点上还是相通的，所以说交叉着看不会事倍功半的。<br>&emsp;&emsp;(2)屏蔽不相关的知识点<br> &emsp;&emsp;在看《汇编二》这本书中，我理解了王爽老师为啥提倡“屏蔽知识”这个方法，它有效地提高了学习者在某一个知识点时的专注力，不会被其它知识点所干扰。<br>&emsp;&emsp;也就是说在关注一个知识点的同时，肯定会引起连带的其它知识点；我们以理解遇到的知识点为目的，去学习其它知识点。要分清主次，切忌盲目学习，以免造成走弯路。我在学习的过程中利用了这个方法，起到了很好的效果。<br>&emsp;&emsp;(3)练习题背后的深入思考<br>&emsp;&emsp;这两本书每章每节后面都有大量的练习题或思考题，供我们去理解并运用先前学到的知识点。每道题都是有针对性的，也不是很难。实在不会做也没关系，基本上都是有答案的。但是，请记住，做之前一点要思考一阵子！越不思考就越不会思考。<br>&emsp;&emsp;做完题目之后，还要进行一番深入思考。我思考的方向是这样的：这道题目用到的知识点为什么就能形成一道题（读着有点拗口，多读几遍就能理解了）。<br>&emsp;&emsp;自己想想通过这道题目它考察了什么知识点？为什么这个知识点能这样用？为什么自己想不到这个知识点？还能不能将这个知识点扩深一下，换到其它问题当中去呢？多问问为什么，做题才有意义。只知道做题而不知道出题者的本意，这是在自寻死路（淡定~冷静~，这是出自一位悲情人物经常说的一句台词- -)。<br>&emsp;&emsp;(4)以笔记的形式记录自己的思考<br>&emsp;&emsp;时常做笔记，生搬硬套把书上内容搬到笔记上，不叫做笔记。哪怕把那段话用自己理解的方式变化一下都要有效果。笔记的内容主要是对某个概念或某个结论表达出自己理解后的文字，通过这种理解又能引申出什么知识点来，多记录这样的内容会很有益的。技术博客怎么写出来的，就是靠平时一点一滴的积攒形成的。<br>&emsp;&emsp;另外把不懂的概念也记录下来，日后有空余时间了在回过头去查阅相关的资料，以免漏掉了这个知识点。</p>
+<h4 id="4-感悟"><a href="#4-感悟" class="headerlink" title="4.感悟"></a>4.感悟</h4><p>&emsp;&emsp;我个人认为网上一些大牛们常说的“要构建属于自己的知识体系结构”云云的话，我是这样理解的：<strong>一个知识点引发了另外一个或者是多个知识点，将这些知识点有效地组织起来，形成一种“体系结构”，并且这些知识点互相之间存在着必然的一种 “联系”，各条道路都会是相通的，只是之间的 “路径”不同罢了</strong>。因为是自学的，身边也没有老师指导，自己在学习的过程中，思考出的一些想法不敢保证有多准确的，但是敢保证不会偏离实际太多。</p>
+<h3 id="三、结束语"><a href="#三、结束语" class="headerlink" title="三、结束语"></a>三、结束语</h3><p>&emsp;&emsp;兴趣和方法虽然在表面上是不相干的两个概念，但是在某种情景下，却产生着必然的内在联系。毫无一丝兴趣，再好的方法也是个花瓶；没有好的方法，就是再有浓厚的兴趣，也是举步维艰，直到兴趣全无，停止了前进。自学之路，苦多甜少，只要挺过一段必定会出现的困难期（瓶颈期），后面则会畅通无阻（我认为就该进入麻木期了）。现在对我来说，还未遇上那个未知的瓶颈，虽然这段期间出现很多很多的基础概念，都不是很理解，甚至是见都没见到过，其实这些都是小问题，通过网络搜索都可以查得到，搞得明明白白。知识体系结构慢慢的连接并形成起来，同时关注纵向的发展，也时常要记得横向的扩深。</p>
+
       
     </div>
     
@@ -397,9 +395,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/java/" rel="tag"><i class="fa fa-tag"></i> java</a>
-          
-            <a href="/tags/多线程/" rel="tag"><i class="fa fa-tag"></i> 多线程</a>
+            <a href="/tags/计算机基础，学习方法/" rel="tag"><i class="fa fa-tag"></i> 计算机基础，学习方法</a>
           
         </div>
       
@@ -412,15 +408,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2010/12/02/学习计算机底层知识：兴趣和方法的重要性/" rel="next" title="学习计算机底层知识：兴趣和方法的重要性">
-                <i class="fa fa-chevron-left"></i> 学习计算机底层知识：兴趣和方法的重要性
-              </a>
-            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/30/multi-thread1/" rel="prev" title="多线程基础：通信与协作">
+                多线程基础：通信与协作 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -584,7 +580,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景引入"><span class="nav-number">1.</span> <span class="nav-text">背景引入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程间的通信与协作"><span class="nav-number">2.</span> <span class="nav-text">线程间的通信与协作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#存在的问题及解决方案"><span class="nav-number">3.</span> <span class="nav-text">存在的问题及解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#过早唤醒"><span class="nav-number">3.1.</span> <span class="nav-text">过早唤醒</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#信号丢失"><span class="nav-number">3.2.</span> <span class="nav-text">信号丢失</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚假唤醒"><span class="nav-number">3.3.</span> <span class="nav-text">虚假唤醒</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#上下文切换的开销"><span class="nav-number">3.4.</span> <span class="nav-text">上下文切换的开销</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、兴趣的产生"><span class="nav-number">1.</span> <span class="nav-text">一、兴趣的产生</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、方法的运用"><span class="nav-number">2.</span> <span class="nav-text">二、方法的运用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-背景"><span class="nav-number">2.1.</span> <span class="nav-text">1.背景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-书籍"><span class="nav-number">2.2.</span> <span class="nav-text">2.书籍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-方法"><span class="nav-number">2.3.</span> <span class="nav-text">3.方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-感悟"><span class="nav-number">2.4.</span> <span class="nav-text">4.感悟</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、结束语"><span class="nav-number">3.</span> <span class="nav-text">三、结束语</span></a></li></ol></div>
             
 
           </div>
