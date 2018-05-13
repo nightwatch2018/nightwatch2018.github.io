@@ -103,7 +103,7 @@
 <meta property="og:description" content="分区概念&amp;emsp;&amp;emsp;分区概念是与主题紧密联系的，每个主题下可以有多个分区（至少有一个）。 &amp;emsp;&amp;emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但offset不跨越分区使用，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/image/anatomyoftopic.png">
-<meta property="og:updated_time" content="2018-05-13T05:12:55.973Z">
+<meta property="og:updated_time" content="2018-05-13T05:15:27.792Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka分区浅析">
 <meta name="twitter:description" content="分区概念&amp;emsp;&amp;emsp;分区概念是与主题紧密联系的，每个主题下可以有多个分区（至少有一个）。 &amp;emsp;&amp;emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但offset不跨越分区使用，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，">
@@ -381,11 +381,11 @@
 <h2 id="分区原理"><a href="#分区原理" class="headerlink" title="分区原理"></a>分区原理</h2><h2 id="分区用途"><a href="#分区用途" class="headerlink" title="分区用途"></a>分区用途</h2><ol>
 <li>借助于分区，我们可以实现Kafka Server的水平扩展。</li>
 </ol>
-<p>&emsp;&emsp;一台机器，无论是物理机还是虚拟机，运行能力总归是有上限的；当一台机器到达能力上限<br>时就无法再扩展，即垂直扩展能力是受到硬件制约的。通过使用分区，我们可以将一个主题中的消息分散到不同的Kafka Server上，这样当机器运行能力不足时，我们只需<br>要增加机器器就可以了，在新的机器器上创建新的分区，这样理理论上就可以实<br>现无限的水平扩展能力。</p>
+<p>&emsp;&emsp;一台机器，无论是物理机还是虚拟机，运能总归是有上限的；当一台机到达能上限<br>时就无法再扩展，即垂直扩展能力是受到硬件制约的。通过使用分区，我们可以将一个主题中的消息分散到不同的Kafka Server上，这样当机器运能不足时，我们只需<br>要增加机器就可以了，在新的机器上创建新的分区，这样理论上就可以实<br>现无限的水平扩展能力。</p>
 <ol>
-<li>分区还可以实现并行行处理理能力</li>
+<li>分区还可以实现并行处理能</li>
 </ol>
-<p>&emsp;&emsp;向一个主题所发送的消息会发送给该主题<br>所拥有的不不同分区中，这样消息就可以实现并行发送和处理理，由多个分区<br>来接收所发送的消息。</p>
+<p>&emsp;&emsp;向一个主题所发送的消息会发送给该主题<br>所拥有的不同分区中，这样消息就可以实现并行发送和处理，由多个分区来接收所发送的消息。</p>
 
       
     </div>
