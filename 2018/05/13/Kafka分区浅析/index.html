@@ -83,7 +83,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="中间件，Kafka," />
 
 
 
@@ -94,13 +94,20 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="探索，永无止境">
-<meta property="og:url" content="http://yoursite.com/categories/计算机基础/index.html">
+<meta name="description" content="分区概念&amp;emsp;&amp;emsp;分区概念是与主题紧密联系的，每个主题下可以有多个分区（至少有一个）。 &amp;emsp;&amp;emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但offset不跨越分区使用，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，">
+<meta name="keywords" content="中间件，Kafka">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka分区浅析">
+<meta property="og:url" content="http://yoursite.com/2018/05/13/Kafka分区浅析/index.html">
 <meta property="og:site_name" content="探索，永无止境">
+<meta property="og:description" content="分区概念&amp;emsp;&amp;emsp;分区概念是与主题紧密联系的，每个主题下可以有多个分区（至少有一个）。 &amp;emsp;&amp;emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但offset不跨越分区使用，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/image/anatomyoftopic.png">
+<meta property="og:updated_time" content="2018-05-13T06:00:49.901Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="探索，永无止境">
+<meta name="twitter:title" content="Kafka分区浅析">
+<meta name="twitter:description" content="分区概念&amp;emsp;&amp;emsp;分区概念是与主题紧密联系的，每个主题下可以有多个分区（至少有一个）。 &amp;emsp;&amp;emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但offset不跨越分区使用，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，">
+<meta name="twitter:image" content="http://yoursite.com/image/anatomyoftopic.png">
 
 
 
@@ -130,13 +137,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/categories/计算机基础/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/05/13/Kafka分区浅析/"/>
 
 
 
 
 
-  <title>分类: 计算机基础 | 探索，永无止境</title>
+  <title>Kafka分区浅析 | 探索，永无止境</title>
   
 
 
@@ -165,7 +172,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -259,55 +266,185 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block category">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>计算机基础<small>分类</small>
-        </h1>
-      </div>
+  
 
-      
-        
+  
+  
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/Kafka分区浅析/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="nightwatcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="探索，永无止境">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2010/12/02/学习计算机底层知识：兴趣和方法的重要性/" itemprop="url">
-              
-                <span itemprop="name">学习计算机底层知识：兴趣和方法的重要性</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">Kafka分区浅析</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2010-12-02T13:20:32+08:00"
-              content="2010-12-02" >
-          12-02
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-13T12:15:20+08:00">
+                2018-05-13
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/中间件/" itemprop="url" rel="index">
+                    <span itemprop="name">中间件</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="分区概念"><a href="#分区概念" class="headerlink" title="分区概念"></a>分区概念</h2><p>&emsp;&emsp;分区概念是与主题紧密联系的，每个主题下可以有多个分区（至少有一个）。</p>
+<p>&emsp;&emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但<strong>offset不跨越分区使用</strong>，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，如下图：</p>
+<p>&emsp;&emsp;<img src="/image/anatomyoftopic.png" alt="image"></p>
+<p>&emsp;&emsp;每个分区都是有序的，不可变的消息序列，后续新来的消息会持续不断地添加进分区的后面，相当于一次结构化的提交日志。分区中的没一条消息都会被分配一个连续的ID，即offset，用来标识在分区中的每一条消息。</p>
+<h2 id="分区原理"><a href="#分区原理" class="headerlink" title="分区原理"></a>分区原理</h2><h2 id="分区用途"><a href="#分区用途" class="headerlink" title="分区用途"></a>分区用途</h2><ol>
+<li>借助于分区，我们可以实现Kafka Server的水平扩展。</li>
+</ol>
+<p>&emsp;&emsp;一台机器，无论是物理机还是虚拟机，运能总归是有上限的；当一台机到达能上限时就无法再扩展，即垂直扩展能力是受到硬件制约的。通过使用分区，我们可以将一个主题中的消息分散到不同的Kafka Server上，这样当机器运能不足时，我们只需要增加机器就可以了，在新的机器上创建新的分区，这样理论上就可以实现无限的水平扩展能力。</p>
+<ol>
+<li>分区还可以实现并行处理能</li>
+</ol>
+<p>&emsp;&emsp;向一个主题所发送的消息会发送给该主题所拥有的不同分区中，这样消息就可以实现并行发送和处理，由多个分区来接收所发送的消息。</p>
 
       
     </div>
+    
+    
+    
 
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/中间件，Kafka/" rel="tag"><i class="fa fa-tag"></i> 中间件，Kafka</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/13/Kafka核心概念/" rel="next" title="Kafka核心概念">
+                <i class="fa fa-chevron-left"></i> Kafka核心概念
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -315,6 +452,15 @@
 
 
           
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzcwOS8xMDI2NA=="></div>
+    </div>
+
+  
+
+
         </div>
         
           
@@ -334,8 +480,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -423,6 +578,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分区概念"><span class="nav-number">1.</span> <span class="nav-text">分区概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区原理"><span class="nav-number">2.</span> <span class="nav-text">分区原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区用途"><span class="nav-number">3.</span> <span class="nav-text">分区用途</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -571,6 +742,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
@@ -598,6 +773,17 @@
 
 
 
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
   
 
 
