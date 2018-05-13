@@ -371,13 +371,12 @@
 <p>&emsp;&emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但<strong>offset不跨越分区使用</strong>，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，如下图：</p>
 <p>&emsp;&emsp;<img src="/image/anatomyoftopic.png" alt="image"></p>
 <p>&emsp;&emsp;每个分区都是有序的，不可变的消息序列，后续新来的消息会持续不断地添加进分区的后面，相当于一次结构化的提交日志。分区中的没一条消息都会被分配一个连续的ID，即offset，用来标识在分区中的每一条消息。</p>
-<h2 id="分区原理"><a href="#分区原理" class="headerlink" title="分区原理"></a>分区原理</h2><h2 id="分区用途"><a href="#分区用途" class="headerlink" title="分区用途"></a>分区用途</h2><ol>
-<li>借助于分区，我们可以实现Kafka Server的水平扩展。</li>
-</ol>
+<h2 id="分区原理"><a href="#分区原理" class="headerlink" title="分区原理"></a>分区原理</h2><p>&emsp;&emsp;值得注意的是，Kafka的分区中的消息是以日志文件的形式存储在磁盘上的，也就是说，一个分区对应于一份日志文件，需要注意，<strong>这个日志文件仅仅是逻辑上的概念</strong>，实际物理的日志文件又是由多个段（Segment）文件构成，其内部存储着真实消息二进制数据。</p>
+<p>&emsp;&emsp;为何不直接将所有消息存放进一个物理日志文件中呢？可以这么去考虑，一个分区中会有大量的消息，如果所有消息全部放置在一份文件中，那么如果文件损坏了就会影响所有消息；如果在这一份文件中进行读写操作，那么效率显然不是很高。因此就需要当分区中的消息数量到达一定的是程度，我们就需要切割消息文件，新的消息会写到新的一份文件中，以此类推，这些新创建的文件就是上面提到的段（Segment），每个段的消息数量并非相等（与消息大小有关）。</p>
+<p>&emsp;&emsp;最后，还需要关注它在磁盘上的保留持续时间，一般根据Kafka Server的配置参数来确定的，比如说，server.properties文件中的参数项log.retention.hours=168就表示7天后删除老的消息文件。</p>
+<h2 id="分区用途"><a href="#分区用途" class="headerlink" title="分区用途"></a>分区用途</h2><p>1.借助于分区，我们可以实现Kafka Server的水平扩展。</p>
 <p>&emsp;&emsp;一台机器，无论是物理机还是虚拟机，运能总归是有上限的；当一台机到达能上限时就无法再扩展，即垂直扩展能力是受到硬件制约的。通过使用分区，我们可以将一个主题中的消息分散到不同的Kafka Server上，这样当机器运能不足时，我们只需要增加机器就可以了，在新的机器上创建新的分区，这样理论上就可以实现无限的水平扩展能力。</p>
-<ol>
-<li>分区还可以实现并行处理能</li>
-</ol>
+<p>2.分区还可以实现并行处理能</p>
 <p>&emsp;&emsp;向一个主题所发送的消息会发送给该主题所拥有的不同分区中，这样消息就可以实现并行发送和处理，由多个分区来接收所发送的消息。</p>
 
           
@@ -789,7 +788,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
