@@ -83,7 +83,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="�м����Kafka," />
 
 
 
@@ -94,13 +94,20 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="探索，永无止境">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="��������&amp;emsp;&amp;emsp;���������������������ϵ�ģ�ÿ�������¿����ж��������������һ������ &amp;emsp;&amp;emsp;ͬһ�����µĲ�ͬ������������Ϣ�ǲ�ͬ�ġ�ÿ����Ϣ���ᱻ����һ��ƫ������offset����������Ϣ�����ڷ����е�Ψһ��ţ�Ҳ��kafka����ȷ����">
+<meta name="keywords" content="�м����Kafka">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka����ǳ��">
+<meta property="og:url" content="http://yoursite.com/2018/05/13/Kafka分区浅析/index.html">
 <meta property="og:site_name" content="探索，永无止境">
+<meta property="og:description" content="��������&amp;emsp;&amp;emsp;���������������������ϵ�ģ�ÿ�������¿����ж��������������һ������ &amp;emsp;&amp;emsp;ͬһ�����µĲ�ͬ������������Ϣ�ǲ�ͬ�ġ�ÿ����Ϣ���ᱻ����һ��ƫ������offset����������Ϣ�����ڷ����е�Ψһ��ţ�Ҳ��kafka����ȷ����">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/image/anatomyoftopic.png">
+<meta property="og:updated_time" content="2018-05-13T05:08:53.601Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="探索，永无止境">
+<meta name="twitter:title" content="Kafka����ǳ��">
+<meta name="twitter:description" content="��������&amp;emsp;&amp;emsp;���������������������ϵ�ģ�ÿ�������¿����ж��������������һ������ &amp;emsp;&amp;emsp;ͬһ�����µĲ�ͬ������������Ϣ�ǲ�ͬ�ġ�ÿ����Ϣ���ᱻ����һ��ƫ������offset����������Ϣ�����ڷ����е�Ψһ��ţ�Ҳ��kafka����ȷ����">
+<meta name="twitter:image" content="http://yoursite.com/image/anatomyoftopic.png">
 
 
 
@@ -130,13 +137,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/05/13/Kafka分区浅析/"/>
 
 
 
 
 
-  <title>探索，永无止境</title>
+  <title>Kafka����ǳ�� | 探索，永无止境</title>
   
 
 
@@ -165,8 +172,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -259,9 +265,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -291,9 +297,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/05/13/Kafka分区浅析/" itemprop="url">Kafka����ǳ��</a></h1>
+          <h1 class="post-title" itemprop="name headline">Kafka����ǳ��</h1>
         
 
         <div class="post-meta">
@@ -347,6 +351,11 @@
           
 
           
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
 
           
 
@@ -365,9 +374,7 @@
       
 
       
-        
-          
-            <h2 id="��������"><a href="#��������" class="headerlink" title="��������"></a>��������</h2><p>&emsp;&emsp;���������������������ϵ�ģ�ÿ�������¿����ж��������������һ������</p>
+        <h2 id="��������"><a href="#��������" class="headerlink" title="��������"></a>��������</h2><p>&emsp;&emsp;���������������������ϵ�ģ�ÿ�������¿����ж��������������һ������</p>
 <p>&emsp;&emsp;ͬһ�����µĲ�ͬ������������Ϣ�ǲ�ͬ�ġ�ÿ����Ϣ���ᱻ����һ��ƫ������offset����������Ϣ�����ڷ����е�Ψһ��ţ�Ҳ��kafka����ȷ����һ�������ڵ�˳�򣻵�<strong>offset����Խ����ʹ��</strong>��Ҳ����˵kafkaֻ��֤��ͬһ�������е���Ϣ������ģ����ڶ���������޷���֤˳���ԣ�����ͼ��</p>
 <p>&emsp;&emsp;<img src="/image/anatomyoftopic.png" alt="image"></p>
 <p>&emsp;&emsp;ÿ��������������ģ����ɱ����Ϣ���У�������������Ϣ��������ϵ���ӽ������ĺ��棬�൱��һ�νṹ�����ύ��־�������е�ûһ����Ϣ���ᱻ����һ��������ID����offset��������ʶ�ڷ����е�ÿһ����Ϣ��</p>
@@ -380,8 +387,6 @@
 </ol>
 <p>&emsp;&emsp;��һ�����������͵���Ϣ�ᷢ�͸�������<br>��ӵ�еĲ���ͬ�����У�������Ϣ�Ϳ���ʵ�ֲ��з��ͺʹ������ɶ������<br>�����������͵���Ϣ��</p>
 
-          
-        
       
     </div>
     
@@ -396,318 +401,36 @@
 
     <footer class="post-footer">
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/Kafka核心概念/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="nightwatcher">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="探索，永无止境">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/05/13/Kafka核心概念/" itemprop="url">Kafka核心概念</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-13T11:08:26+08:00">
-                2018-05-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
+        <div class="post-tags">
           
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/中间件/" itemprop="url" rel="index">
-                    <span itemprop="name">中间件</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
+            <a href="/tags/�м����Kafka/" rel="tag"><i class="fa fa-tag"></i> �м����Kafka</a>
           
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="生产者（Producer）"><a href="#生产者（Producer）" class="headerlink" title="生产者（Producer）"></a>生产者（Producer）</h2><p>&emsp;&emsp;生产消息的组件，并将生成的消息发送给消息队列；可发送字符串或二进制数据。</p>
-<h2 id="消费者（Consumer）"><a href="#消费者（Consumer）" class="headerlink" title="消费者（Consumer）"></a>消费者（Consumer）</h2><p>&emsp;&emsp;消费消息的组件，从消息队列拉取消息。</p>
-<h2 id="代理（Broker）"><a href="#代理（Broker）" class="headerlink" title="代理（Broker）"></a>代理（Broker）</h2><p>&emsp;&emsp;本质上就是消息队列本身，在Kafka这个领域中，Broker指的就是一台Kafka Server。</p>
-<p>&emsp;&emsp;结合前两个概念，也就是生产者会把生成的消息发送给Borker，而消费者再从Broker拉取消息；使两者都面对Kafka编程，实现解耦的目的。</p>
-<h2 id="主题（Topic）"><a href="#主题（Topic）" class="headerlink" title="主题（Topic）"></a>主题（Topic）</h2><p>&emsp;&emsp;在Kafka中属于一种逻辑概念，也就是说将消息进行分类汇总，可以看成是<strong><em>某一类</em></strong>。一个主题下可以有多条消息，那么不同主题就有各自属于它们那一类的消息。</p>
-<p>&emsp;&emsp;生产者可以指定一个主题来发送相关消息，消费者同样可以根据一个主题来拉取指定消息。</p>
-<h2 id="消息（Record）"><a href="#消息（Record）" class="headerlink" title="消息（Record）"></a>消息（Record）</h2><p>&emsp;&emsp;是Kfaka中的一个原子概念，指的就是生产者发送和消费者拉取的一个原子事物。</p>
-<p>&emsp;&emsp;消息由两部分组成，key+value，本质上都是字节数据。key是根据一定策略，将value存储到指定的分区上；value则是消息的真正载体。</p>
-<h2 id="集群（Cluster）"><a href="#集群（Cluster）" class="headerlink" title="集群（Cluster）"></a>集群（Cluster）</h2><p>&emsp;&emsp;指由多个Broker共同组成的一个整体，对外提供统一的服务，以实现高可用于容错的功能。比如一台Broker挂掉也不影响整体消息系统的正确运行。集群之间通过心跳机制来检测是否有挂掉的机器。</p>
-<h2 id="控制器（Controller）"><a href="#控制器（Controller）" class="headerlink" title="控制器（Controller）"></a>控制器（Controller）</h2><p>&emsp;&emsp;属于集群中的概念，负责管理Kafka分区的状态和每个分区副本的状态等事务。</p>
-<p>&emsp;&emsp;多台Broker中根据某种算法选举中一个Leader，其他Broker都会监听Leader的状态，并根据Leader的指挥来实现相应的功能。</p>
-<p>&emsp;&emsp;如果Leader出现故障时，集群中的Broker需要重新选举出另一个Leader。</p>
-<h2 id="消费者组（Comsumer-Group）"><a href="#消费者组（Comsumer-Group）" class="headerlink" title="消费者组（Comsumer Group）"></a>消费者组（Comsumer Group）</h2><p>&emsp;&emsp;也是Kafka中一个核心的概念，用于实现消息的广播和单播的功能。</p>
-<p>&emsp;&emsp;首先，一个消费者只能从属于一个消费者组，多个消费者则构成一个消费者组；</p>
-<p>&emsp;&emsp;其次，不同消费者组可以共同消费同一个主题上的消息，因为消费者组之间是相互独立，互不干扰的；而一个消费者组里面只会有唯一一个消费者能够消费。</p>
-<p>&emsp;&emsp;前面提到实现广播和单播的功能，<strong>其实就是将消费者放置到哪个消费者组里面的事情</strong>。比如某条消息，只让一个消费者消费，那就把它们全放到一个组里面，这是单播效果；如果可以让多个消费者消费，那就放置到不同的组里面，这是广播效果。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
       
 
       
       
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
       
 
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2010/12/02/学习计算机底层知识：兴趣和方法的重要性/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="nightwatcher">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="探索，永无止境">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2010/12/02/学习计算机底层知识：兴趣和方法的重要性/" itemprop="url">学习计算机底层知识：兴趣和方法的重要性</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2010-12-02T13:20:32+08:00">
-                2010-12-02
-              </time>
+              <a href="/2018/05/13/Kafka核心概念/" rel="next" title="Kafka核心概念">
+                <i class="fa fa-chevron-left"></i> Kafka核心概念
+              </a>
             
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/计算机基础/" itemprop="url" rel="index">
-                    <span itemprop="name">计算机基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h3 id="一、兴趣的产生"><a href="#一、兴趣的产生" class="headerlink" title="一、兴趣的产生"></a>一、兴趣的产生</h3><p>&emsp;&emsp;我在前段日子关注了一阵子号称与同类数据源框架产品执行效率快几十倍的BoneCP，也粗略的看了下其源码实现。其内部核心是采用了JDK5.0新增的并发框架来实现的。之后顺藤摸瓜的学习了下java.util.concurrent包中的内容，期间看了不少PDF资料，初步有了大致的了解，也就是说只停留了在API使用层面上。对这个并发框架的内部实现原理理解的不是很透彻，因为看懂源码也仅仅是在API内部看懂了，并不见得能够挖掘出它的本质。个人感觉今后若还以这样的方式学习新潮技术，路只会越走越窄。因此萌生了学习计算机底层知识的浓厚兴趣。</p>
-<h3 id="二、方法的运用"><a href="#二、方法的运用" class="headerlink" title="二、方法的运用"></a>二、方法的运用</h3><h4 id="1-背景"><a href="#1-背景" class="headerlink" title="1.背景"></a>1.背景</h4><p>&emsp;&emsp;介绍这些方法之前，先看看它们是在什么背景或情景下产生出来并运用的。<br>&emsp;&emsp;我本人没有正式地系统学习过计算机底层知识的经历，诸如：操作系统、数据结构、编译原理等基础性科目，但是这些科目我零零散散地都有自学补习过，苦于基础知识晦涩难懂，并且也是自学的，所以都没有坚持下来，各个科目都是浮于表面的理解，没有过太深入性的思考。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2010/12/02/学习计算机底层知识：兴趣和方法的重要性/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
           </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
 
-    
+          <span class="post-nav-divider"></span>
 
-    
-
-    
-
-    <footer class="post-footer">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
       
 
       
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -717,10 +440,11 @@
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -728,6 +452,15 @@
 
 
           
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzcwOS8xMDI2NA=="></div>
+    </div>
+
+  
+
+
         </div>
         
           
@@ -747,8 +480,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -836,6 +578,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#��������"><span class="nav-number">1.</span> <span class="nav-text">��������</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#����ԭ��"><span class="nav-number">2.</span> <span class="nav-text">����ԭ��</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#������;"><span class="nav-number">3.</span> <span class="nav-text">������;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -984,6 +742,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
@@ -1011,6 +773,17 @@
 
 
 
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
   
 
 
