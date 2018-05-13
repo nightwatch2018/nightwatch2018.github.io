@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="探索，永无止境">
 <meta property="og:description" content="生产者（Producer）&amp;emsp;&amp;emsp;生产消息的组件，并将生成的消息发送给消息队列；可发送字符串或二进制数据。 消费者（Consumer）&amp;emsp;&amp;emsp;消费消息的组件，从消息队列拉取消息。 代理（Broker）&amp;emsp;&amp;emsp;本质上就是消息队列本身，在Kafka这个领域中，Broker指的就是一台Kafka Server。 &amp;emsp;&amp;emsp;结合前两个概念，也就">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-13T06:40:05.733Z">
+<meta property="og:updated_time" content="2018-05-13T06:41:39.527Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka核心概念">
 <meta name="twitter:description" content="生产者（Producer）&amp;emsp;&amp;emsp;生产消息的组件，并将生成的消息发送给消息队列；可发送字符串或二进制数据。 消费者（Consumer）&amp;emsp;&amp;emsp;消费消息的组件，从消息队列拉取消息。 代理（Broker）&amp;emsp;&amp;emsp;本质上就是消息队列本身，在Kafka这个领域中，Broker指的就是一台Kafka Server。 &amp;emsp;&amp;emsp;结合前两个概念，也就">
@@ -379,7 +379,7 @@
 <h2 id="主题（Topic）"><a href="#主题（Topic）" class="headerlink" title="主题（Topic）"></a>主题（Topic）</h2><p>&emsp;&emsp;在Kafka中属于一种逻辑概念，也就是说将消息进行分类汇总，可以看成是<strong><em>某一类</em></strong>。一个主题下可以有多条消息，那么不同主题就有各自属于它们那一类的消息。</p>
 <p>&emsp;&emsp;生产者可以指定一个主题来发送相关消息，消费者同样可以根据一个主题来拉取指定消息。</p>
 <h2 id="消息（Record）"><a href="#消息（Record）" class="headerlink" title="消息（Record）"></a>消息（Record）</h2><p>&emsp;&emsp;是Kfaka中的一个原子概念，指的就是生产者发送和消费者拉取的一个原子事物。</p>
-<p>&emsp;&emsp;消息由两部分组成，key+value，本质上都是字节数据。key是根据一定策略，将value存储到指定的分区上；value则是消息的真正载体。<br>&lt; !–more–&gt;</p>
+<p>&emsp;&emsp;消息由两部分组成，key+value，本质上都是字节数据。key是根据一定策略，将value存储到指定的分区上；value则是消息的真正载体。<br><a id="more"></a></p>
 <h2 id="集群（Cluster）"><a href="#集群（Cluster）" class="headerlink" title="集群（Cluster）"></a>集群（Cluster）</h2><p>&emsp;&emsp;指由多个Broker共同组成的一个整体，对外提供统一的服务，以实现高可用于容错的功能。比如一台Broker挂掉也不影响整体消息系统的正确运行。集群之间通过心跳机制来检测是否有挂掉的机器。</p>
 <h2 id="控制器（Controller）"><a href="#控制器（Controller）" class="headerlink" title="控制器（Controller）"></a>控制器（Controller）</h2><p>&emsp;&emsp;属于集群中的概念，负责管理Kafka分区的状态和每个分区副本的状态等事务。</p>
 <p>&emsp;&emsp;多台Broker中根据某种算法选举中一个Leader，其他Broker都会监听Leader的状态，并根据Leader的指挥来实现相应的功能。</p>
