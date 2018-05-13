@@ -293,7 +293,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/05/13/Kafka分区浅析/" itemprop="url">Kafka����ǳ��</a></h1>
+                <a class="post-title-link" href="/2018/05/13/Kafka分区浅析/" itemprop="url">Kafka分区浅析</a></h1>
         
 
         <div class="post-meta">
@@ -328,8 +328,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/�м��/" itemprop="url" rel="index">
-                    <span itemprop="name">�м��</span>
+                  <a href="/categories/中间件/" itemprop="url" rel="index">
+                    <span itemprop="name">中间件</span>
                   </a>
                 </span>
 
@@ -367,18 +367,18 @@
       
         
           
-            <h2 id="��������"><a href="#��������" class="headerlink" title="��������"></a>��������</h2><p>&emsp;&emsp;���������������������ϵ�ģ�ÿ�������¿����ж��������������һ������</p>
-<p>&emsp;&emsp;ͬһ�����µĲ�ͬ������������Ϣ�ǲ�ͬ�ġ�ÿ����Ϣ���ᱻ����һ��ƫ������offset����������Ϣ�����ڷ����е�Ψһ��ţ�Ҳ��kafka����ȷ����һ�������ڵ�˳�򣻵�<strong>offset����Խ����ʹ��</strong>��Ҳ����˵kafkaֻ��֤��ͬһ�������е���Ϣ������ģ����ڶ���������޷���֤˳���ԣ�����ͼ��</p>
+            <h2 id="分区概念"><a href="#分区概念" class="headerlink" title="分区概念"></a>分区概念</h2><p>&emsp;&emsp;分区概念是与主题紧密联系的，每个主题下可以有多个分区（至少有一个）。</p>
+<p>&emsp;&emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但<strong>offset不跨越分区使用</strong>，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，如下图：</p>
 <p>&emsp;&emsp;<img src="/image/anatomyoftopic.png" alt="image"></p>
-<p>&emsp;&emsp;ÿ��������������ģ����ɱ����Ϣ���У�������������Ϣ��������ϵ���ӽ������ĺ��棬�൱��һ�νṹ�����ύ��־�������е�ûһ����Ϣ���ᱻ����һ��������ID����offset��������ʶ�ڷ����е�ÿһ����Ϣ��</p>
-<h2 id="����ԭ��"><a href="#����ԭ��" class="headerlink" title="����ԭ��"></a>����ԭ��</h2><h2 id="������;"><a href="#������;" class="headerlink" title="������;"></a>������;</h2><ol>
-<li>�����ڷ��������ǿ���ʵ��Kafka Server��ˮƽ��չ��</li>
+<p>&emsp;&emsp;每个分区都是有序的，不可变的消息序列，后续新来的消息会持续不断地添加进分区的后面，相当于一次结构化的提交日志。分区中的没一条消息都会被分配一个连续的ID，即offset，用来标识在分区中的每一条消息。</p>
+<h2 id="分区原理"><a href="#分区原理" class="headerlink" title="分区原理"></a>分区原理</h2><h2 id="分区用途"><a href="#分区用途" class="headerlink" title="分区用途"></a>分区用途</h2><ol>
+<li>借助于分区，我们可以实现Kafka Server的水平扩展。</li>
 </ol>
-<p>&emsp;&emsp;һ̨�������������������������������������ܹ��������޵ģ���һ̨��?������������<br>ʱ���޷�����չ������ֱ��չ�������ܵ�Ӳ����Լ�ġ�ͨ��ʹ�÷��������ǿ��Խ�һ�������е���Ϣ��ɢ����ͬ��Kafka Server�ϣ�����������������������ʱ������ֻ��<br>Ҫ���ӻ���?�Ϳ����ˣ����µĻ���?�ϴ����µķ����������������ϾͿ���ʵ<br>�����޵�ˮƽ��չ������</p>
+<p>&emsp;&emsp;一台机器，无论是物理机还是虚拟机，运行能力总归是有上限的；当一台机器到达能力上限<br>时就无法再扩展，即垂直扩展能力是受到硬件制约的。通过使用分区，我们可以将一个主题中的消息分散到不同的Kafka Server上，这样当机器运行能力不足时，我们只需<br>要增加机器器就可以了，在新的机器器上创建新的分区，这样理理论上就可以实<br>现无限的水平扩展能力。</p>
 <ol>
-<li>����������ʵ�ֲ����д���������</li>
+<li>分区还可以实现并行行处理理能力</li>
 </ol>
-<p>&emsp;&emsp;��һ�����������͵���Ϣ�ᷢ�͸�������<br>��ӵ�еĲ���ͬ�����У�������Ϣ�Ϳ���ʵ�ֲ��з��ͺʹ������ɶ������<br>�����������͵���Ϣ��</p>
+<p>&emsp;&emsp;向一个主题所发送的消息会发送给该主题<br>所拥有的不不同分区中，这样消息就可以实现并行发送和处理理，由多个分区<br>来接收所发送的消息。</p>
 
           
         
@@ -778,7 +778,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -789,7 +789,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
