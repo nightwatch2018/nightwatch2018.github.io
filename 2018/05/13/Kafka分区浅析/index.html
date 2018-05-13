@@ -103,7 +103,7 @@
 <meta property="og:description" content="分区概念&amp;emsp;&amp;emsp;分区概念是与主题紧密联系的，每个主题下可以有多个分区（至少有一个）。 &amp;emsp;&amp;emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但offset不跨越分区使用，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/image/anatomyoftopic.png">
-<meta property="og:updated_time" content="2018-05-13T06:22:23.965Z">
+<meta property="og:updated_time" content="2018-05-13T06:30:45.004Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka分区浅析">
 <meta name="twitter:description" content="分区概念&amp;emsp;&amp;emsp;分区概念是与主题紧密联系的，每个主题下可以有多个分区（至少有一个）。 &amp;emsp;&amp;emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但offset不跨越分区使用，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，">
@@ -378,8 +378,9 @@
 <p>&emsp;&emsp;同一主题下的不同分区包含的消息是不同的。每个消息都会被分配一个偏移量（offset），它是消息在所在分区中的唯一编号，也是kafka用来确保在一个分区内的顺序；但<strong>offset不跨越分区使用</strong>，也就是说kafka只保证在同一个分区中的消息是有序的，而在多个分区中无法保证顺序性，如下图：</p>
 <p>&emsp;&emsp;<img src="/image/anatomyoftopic.png" alt="image"></p>
 <p>&emsp;&emsp;每个分区都是有序的，不可变的消息序列，后续新来的消息会持续不断地添加进分区的后面，相当于一次结构化的提交日志。分区中的没一条消息都会被分配一个连续的ID，即offset，用来标识在分区中的每一条消息。</p>
-<h2 id="分区原理"><a href="#分区原理" class="headerlink" title="分区原理"></a>分区原理</h2><p>&emsp;&emsp;值得注意的是，Kafka的分区中的消息是以日志文件的形式存储在磁盘上的，也就是说，一个分区对应于一份日志文件，需要注意，<strong>这个日志文件仅仅是逻辑上的概念</strong>，实际物理的日志文件又是由多个段（Segment）文件构成，其内部存储着真实消息二进制数据。</p>
-<p>&emsp;&emsp;为何不直接将所有消息存放进一个物理日志文件中呢？可以这么去考虑，一个分区中会有大量的消息，如果所有消息全部放置在一份文件中，那么如果文件损坏了就会影响所有消息；如果在这一份文件中进行读写操作，那么效率显然不是很高。因此就需要当分区中的消息数量到达一定的是程度，我们就需要切割消息文件，新的消息会写到新的一份文件中，以此类推，这些新创建的文件就是上面提到的段（Segment），每个段的消息数量并非相等（与消息大小有关）。</p>
+<h2 id="分区原理"><a href="#分区原理" class="headerlink" title="分区原理"></a>分区原理</h2><h4 id="分区目录"><a href="#分区目录" class="headerlink" title="分区目录"></a>分区目录</h4><p>&emsp;&emsp;当创建一个主题并为其设置多个分区时，Kafka就会在磁盘上创建相等数量的分区目录，其命名规则为：主题名+序号。其中，第一个partition序号为0，第二个是1，第三个是2，以此类推。序号最大值为partition数量-1。</p>
+<h4 id="段文件"><a href="#段文件" class="headerlink" title="段文件"></a>段文件</h4><p>&emsp;&emsp;值得注意的是，Kafka分区中的消息是以日志文件的形式存储在磁盘上的，也就是说，一个分区对应于一份日志文件，需要注意，<strong>这个日志文件仅仅是逻辑上的概念</strong>，实际物理的日志文件又是由多个段（Segment）文件构成，其内部存储着真实消息二进制数据。</p>
+<p>&emsp;&emsp;为何不直接将所有消息存放进一个物理日志文件中呢？可以这么去考虑，一个分区中会有大量的消息，如果所有消息全部放置在一份文件中，那么如果文件损坏了就会影响所有消息；如果在这一份文件中进行读写操作，那么效率显然不是很高。因此就需要当分区中的消息数量到达一定的程度，我们就需要切割消息文件，新的消息会写到新的一份文件中，以此类推，这些新创建的文件就是上面提到的段（Segment），每个段的消息数量并非相等（与消息大小有关）。</p>
 <p>&emsp;&emsp;最后，还需要关注它在磁盘上的保留持续时间，一般根据Kafka Server的配置参数来确定的，比如说，server.properties文件中的参数项log.retention.hours=168就表示7天后删除老的消息文件。</p>
 <h2 id="分区用途"><a href="#分区用途" class="headerlink" title="分区用途"></a>分区用途</h2><p>1.借助于分区，我们可以实现Kafka Server的水平扩展。</p>
 <p>&emsp;&emsp;一台机器，无论是物理机还是虚拟机，运能总归是有上限的；当一台机到达能上限时就无法再扩展，即垂直扩展能力是受到硬件制约的。通过使用分区，我们可以将一个主题中的消息分散到不同的Kafka Server上，这样当机器运能不足时，我们只需要增加机器就可以了，在新的机器上创建新的分区，这样理论上就可以实现无限的水平扩展能力。</p>
@@ -532,7 +533,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -589,7 +590,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分区概念"><span class="nav-number">1.</span> <span class="nav-text">分区概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区原理"><span class="nav-number">2.</span> <span class="nav-text">分区原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区用途"><span class="nav-number">3.</span> <span class="nav-text">分区用途</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分区概念"><span class="nav-number">1.</span> <span class="nav-text">分区概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区原理"><span class="nav-number">2.</span> <span class="nav-text">分区原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#分区目录"><span class="nav-number">2.0.1.</span> <span class="nav-text">分区目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#段文件"><span class="nav-number">2.0.2.</span> <span class="nav-text">段文件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区用途"><span class="nav-number">3.</span> <span class="nav-text">分区用途</span></a></li></ol></div>
             
 
           </div>
