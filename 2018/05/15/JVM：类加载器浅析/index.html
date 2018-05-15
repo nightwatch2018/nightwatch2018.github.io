@@ -83,7 +83,7 @@
 
 
 
-  <meta name="keywords" content="JVM," />
+  <meta name="keywords" content="JVM,类加载器," />
 
 
 
@@ -95,17 +95,19 @@
 
 
 <meta name="description" content="这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：  最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认识的接口，然后去让app">
-<meta name="keywords" content="JVM">
+<meta name="keywords" content="JVM,类加载器">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM：类加载器浅析">
 <meta property="og:url" content="http://yoursite.com/2018/05/15/JVM：类加载器浅析/index.html">
 <meta property="og:site_name" content="只是想把事儿说明白">
 <meta property="og:description" content="这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：  最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认识的接口，然后去让app">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-15T13:15:47.024Z">
+<meta property="og:image" content="http://yoursite.com/image/parentClassLoaderModel.png">
+<meta property="og:updated_time" content="2018-05-15T13:22:10.162Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM：类加载器浅析">
 <meta name="twitter:description" content="这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：  最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认识的接口，然后去让app">
+<meta name="twitter:image" content="http://yoursite.com/image/parentClassLoaderModel.png">
 
 
 
@@ -376,20 +378,48 @@
 <blockquote>
 <p>最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认识的接口，然后去让appclassloader加载这个接口，实际加载的是bootstrapclassloader，加载完接口再去用appclassloader去加载这个类。可能思维有些混乱。</p>
 </blockquote>
-<p>&emsp;&emsp;实际上该问题我已在星球中答复，从问题产生的原因到JDK给出的解决方案；这但还是感觉并不像写技术文章那样有条理,遂写这篇技术文章并整理思路。</p>
+<p>&emsp;&emsp;实际上该问题我已在星球中答复，从问题产生的原因到JDK给出的解决方案；这但还是感觉并不像写技术文章那样有条理,遂写下这篇以整理思路。</p>
 <p>&emsp;&emsp;先说结论，由于在类加载器的双亲委托的机制下，根加载器无法加载厂商的接口实现类，才导致需要打破双亲机制，增加线程上下文加载器来解决这种情况，下面我们挖一挖背后的原因所在。</p>
-<h2 id="双亲委托机制"><a href="#双亲委托机制" class="headerlink" title="双亲委托机制"></a>双亲委托机制</h2><p>（回家补充理论文字。。。。。。。。。。。。。）</p>
-<h2 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h2><p>我们直接给出命名空间的定义和其特征：</p>
+<h2 id="双亲委托机制"><a href="#双亲委托机制" class="headerlink" title="双亲委托机制"></a>双亲委托机制</h2><p>&emsp;&emsp;我们来看一幅图：</p>
+<p>&emsp;&emsp;<img src="/image/parentClassLoaderModel.png" alt="image"></p>
+<p>&emsp;&emsp;该图的信息量很多，比如有子加载器委托父加载器、各加载器所负责的加载目录等。这里只着重说一点，名义上是父子关系，<strong>实际上它们并未有实质性的继承关系，仅仅是对象组合关系，也就是委托。</strong></p>
+<a id="more"></a>
+<p>&emsp;&emsp;我们再深入讨论一下该机制存在的意义：</p>
+<p>&emsp;&emsp;如果不存在双亲委托机制，不同的类加载器各自为政，都从指定目录加载自己的类，难免会有相同的全限定名的类，无形中消耗更多的可用内存；甚至应用程序在运行的时候还会各种报错，使应用极不稳定，因为这些相同的类其实都不会与彼此兼容，相互不可见（其实是命名空间导致的，下文会提到）。</p>
+<p>&emsp;&emsp;这时，双亲委托机制在JDK1.2时闪亮登场了，为了确保Java核心类库在运行时的类型安全，以使应用程序运行时更加的稳定，Java核心类库的类加载工作都交由启动类加载器来统一完成，从而确保了Java应用所使用的都是同一个版本的Java核心类库，它们之间是相互兼容的。</p>
+<p>&emsp;&emsp;安全性的问题解决了，就万事大吉了么？不然，这又引起了另外一个问题，我们接着往下看。</p>
+<h2 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h2><p>&emsp;&emsp;我们直接给出命名空间的定义和其特征：</p>
 <blockquote>
-<p>&emsp;&emsp;所谓命名空间就是由子加载器及其所有父加载器所加载的类而构成，这其中有两点需要注意：</p>
+<p>&emsp;&emsp;所谓命名空间就是由子加载器及其所有父加载器所加载的类而构成，</p>
+</blockquote>
+<p>&emsp;&emsp;这其中有三个特征需要注意：</p>
+<blockquote>
 <p>&emsp;&emsp;1. 在同一命名空间中，不会出现类的完整名字（包括类的包名）相同的两个类。</p>
 <p>&emsp;&emsp;2. 在不同的命名空间中，有可能会出现类的完整名字（包括类的包名）相同的两个类。</p>
+<p>&emsp;&emsp;3.  如果两个加载器之间没有父子关系，那么它们相互独立不可见。</p>
 </blockquote>
-<p>&emsp;&emsp;现在可以反过来再体会下上文提到的双亲委托机制下。父加载器与子加载器共同承担着类加载的工作，有的类是父加载器加载的，有的则是子加载器加载的。</p>
-<p>&emsp;&emsp;那么子加载器是委托父加载器来加载一个类的，理所当然能看到父加载器加载过的类；反过来就不一样了，父加载器看不到子加载器加载过的类，因为每个加载器都有各自的指定加载目录，父加载器看不到子加载器的目录，所以没有任何办法加载那里的类，或者说压根就不知道那里还有待加载的类。</p>
-<p>&emsp;&emsp;所以这才是问题的本源，双亲委托加载机制虽然保证了类加载的安全性，但是在一定程度上限制了其可使用场景，比如SPI接口规范。</p>
+<p>&emsp;&emsp;现在可以反过来再体会下上文提到的双亲委托机制。父加载器与子加载器共同承担着类加载的工作，有的类是父加载器加载的，有的则是子加载器加载的。</p>
+<p>&emsp;&emsp;那么子加载器是委托父加载器来加载一个类的，理所当然能看到父加载器加载过的类；反之则不一样，父加载器看不到子加载器加载过的类，<strong>因为父加载器不会主动委托给子加载器去加载某个类，并且每个加载器都有各自的指定加载目录，父加载器看不到子加载器的目录</strong>，所以没有任何办法加载那里的类，或者说压根就不知道那里还有待加载的类。</p>
+<p>&emsp;&emsp;所以这才是问题的本源，双亲委托加载机制虽然保证了类加载的安全性，但是有了命名空间这个概念的存在，在一定程度上限制了其可使用场景，比如SPI接口规范（下文会提到）。</p>
 <p>&emsp;&emsp;既然我们已经追溯到了问题本源，就可以寻找解决之道了；幸好，JDK已经为我们安排好了一切，提供了一个”后门”，也就是下面要谈到的线程上下文类加载器。</p>
-<h2 id="线程上下文类加载器"><a href="#线程上下文类加载器" class="headerlink" title="线程上下文类加载器"></a>线程上下文类加载器</h2><p>&emsp;&emsp;我们在日常开发中几乎是碰不上线程上下文类加载器的，它只存在于JRE源码中。</p>
+<h2 id="线程上下文类加载器"><a href="#线程上下文类加载器" class="headerlink" title="线程上下文类加载器"></a>线程上下文类加载器</h2><p>&emsp;&emsp;我们在日常开发中几乎是碰不上线程上下文类加载器的，它只存在于源码中，那么我们就从JDK源码下手。</p>
+<p>&emsp;&emsp;首先看到的是java.lang.Thread中的一个成员变量和其对应的两个方法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/* The context ClassLoader for this thread */</span><br><span class="line">private ClassLoader contextClassLoader;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public ClassLoader getContextClassLoader() &#123;</span><br><span class="line">    //...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void setContextClassLoader(ClassLoader cl) &#123;</span><br><span class="line">    //...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;contextClassLoader变量为当前线程保存着上下文类加载器，并且还定义了对应get和set的方法。其实我们最关注的还是这个set方法何时被调用的。</p>
+<p>&emsp;&emsp;带着这个问题我们来看下sun.misc.Launcher的源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">67      public Launcher() &#123;</span><br><span class="line">68         // Create the extension class loader</span><br><span class="line">69         ClassLoader extcl;</span><br><span class="line">70         try &#123;</span><br><span class="line">71             extcl = ExtClassLoader.getExtClassLoader();</span><br><span class="line">72         &#125; catch (IOException e) &#123;</span><br><span class="line">73             throw new InternalError(</span><br><span class="line">74                 &quot;Could not create extension class loader&quot;, e);</span><br><span class="line">75         &#125;</span><br><span class="line">76 </span><br><span class="line">77         // Now create the class loader to use to launch the application</span><br><span class="line">78         try &#123;</span><br><span class="line">79             loader = AppClassLoader.getAppClassLoader(extcl);</span><br><span class="line">80         &#125; catch (IOException e) &#123;</span><br><span class="line">81             throw new InternalError(</span><br><span class="line">82                 &quot;Could not create application class loader&quot;, e);</span><br><span class="line">83         &#125;</span><br><span class="line">84 </span><br><span class="line">85         // Also set the context class loader for the primordial thread.</span><br><span class="line">86         Thread.currentThread().setContextClassLoader(loader);</span><br><span class="line"></span><br><span class="line">		   //...</span><br><span class="line">110    &#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这段构造函数的源码很重要，信息量也很大，我们仅捕获其三点来加以说明：</p>
+<ol>
+<li>71行和79行告诉我们扩展类加载器和系统类加载器均是由Launcher负责创建。</li>
+<li>79行直接将扩展类加载器作为父加载器传进构造函数以创建系统类加载器。</li>
+<li>最关键的就是86行了，告诉我们<strong>应用程序在启动的时候，线程上下文类加载器就被设置好了，默认为系统类加载器</strong>。</li>
+</ol>
+<p>&emsp;&emsp;现在我们知道线程上下文类加载器是怎么来的了，那么就讨论一下它解决了什么问题。</p>
+<p>&emsp;&emsp;其实很简单，<strong>就是为了解决上一段描述的命名空间的限制</strong>。在双亲委托机制下，类加载是由下至上的，即下层的类加载器会委托上层进行加载。在SPI（Service Provider Interface）场景下，有些接口是Java核心库提供的，并且是由启动类加载器来加载的，而这些接口的实现却来自不同的jar包（实现厂商提供），Java的启动类加载器是不会加载其它来源的Jar包，这样传统的双亲委托机制无法满足SPI要求。通过给当前线程设置上下文类加载器，就可以由其负责加载接口实现的类。</p>
+<p>&emsp;&emsp;最后我们来看一下那个get方法在何处被用到，也就是用一个实际场景来加深对线程上下文类加载器的理解，SPI规范中有一个类java.util.ServiceLoader,其构造函数如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public static &lt;S&gt; ServiceLoader&lt;S&gt; load(Class&lt;S&gt; service) &#123;</span><br><span class="line">        ClassLoader cl = Thread.currentThread().getContextClassLoader();</span><br><span class="line">        return ServiceLoader.load(service, cl);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;第一行代码就说明了一切，SPI规范中的类加载器就是从当前线程对象中获取上下文类加载器的；例如JDBC中的java.sql.DriverManager，该类是由根加载器所加载，其内部就是调用ServiceLoader#load(Class service)方法来获取线程上线文类加载器来加载各大厂商的数据库驱动实现类的，否则无法加载SPI实现类，也就无法实现更多灵活的功能。</p>
+<p>&emsp;&emsp;其实挖到这里，就已经能把开篇的那个问题解释清楚了，最后再用抽象的语言总结一下，当高层提供了统一的接口让低层去实现，同时又要在高层去加载（或实例化）低层类时，就必须要通过线程上下文类加载器来帮助高层的ClassLoader找到并加载该类。</p>
 
       
     </div>
@@ -408,6 +438,8 @@
         <div class="post-tags">
           
             <a href="/tags/JVM/" rel="tag"><i class="fa fa-tag"></i> JVM</a>
+          
+            <a href="/tags/类加载器/" rel="tag"><i class="fa fa-tag"></i> 类加载器</a>
           
         </div>
       
@@ -535,7 +567,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
