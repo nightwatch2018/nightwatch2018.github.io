@@ -274,6 +274,165 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/15/JVM：类加载器浅析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="nightwatcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="只是想把事儿说明白">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/15/JVM：类加载器浅析/" itemprop="url">JVM：类加载器浅析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-15T20:16:22+08:00">
+                2018-05-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：</p>
+<blockquote>
+<p>最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认识的接口，然后去让appclassloader加载这个接口，实际加载的是bootstrapclassloader，加载完接口再去用appclassloader去加载这个类。可能思维有些混乱。</p>
+</blockquote>
+<p>&emsp;&emsp;实际上该问题我已在星球中答复，从问题产生的原因到JDK给出的解决方案；这但还是感觉并不像写技术文章那样有条理,遂写这篇技术文章并整理思路。</p>
+<p>&emsp;&emsp;先说结论，由于在类加载器的双亲委托的机制下，根加载器无法加载厂商的接口实现类，才导致需要打破双亲机制，增加线程上下文加载器来解决这种情况，下面我们挖一挖背后的原因所在。</p>
+<h2 id="双亲委托机制"><a href="#双亲委托机制" class="headerlink" title="双亲委托机制"></a>双亲委托机制</h2><p>（回家补充理论文字。。。。。。。。。。。。。）</p>
+<h2 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h2><p>我们直接给出命名空间的定义和其特征：</p>
+<blockquote>
+<p>&emsp;&emsp;所谓命名空间就是由子加载器及其所有父加载器所加载的类而构成，这其中有两点需要注意：</p>
+<p>&emsp;&emsp;1. 在同一命名空间中，不会出现类的完整名字（包括类的包名）相同的两个类。</p>
+<p>&emsp;&emsp;2. 在不同的命名空间中，有可能会出现类的完整名字（包括类的包名）相同的两个类。</p>
+</blockquote>
+<p>&emsp;&emsp;现在可以反过来再体会下上文提到的双亲委托机制下。父加载器与子加载器共同承担着类加载的工作，有的类是父加载器加载的，有的则是子加载器加载的。</p>
+<p>&emsp;&emsp;那么子加载器是委托父加载器来加载一个类的，理所当然能看到父加载器加载过的类；反过来就不一样了，父加载器看不到子加载器加载过的类，因为每个加载器都有各自的指定加载目录，父加载器看不到子加载器的目录，所以没有任何办法加载那里的类，或者说压根就不知道那里还有待加载的类。</p>
+<p>&emsp;&emsp;所以这才是问题的本源，双亲委托加载机制虽然保证了类加载的安全性，但是在一定程度上限制了其可使用场景，比如SPI接口规范。</p>
+<p>&emsp;&emsp;既然我们已经追溯到了问题本源，就可以寻找解决之道了；幸好，JDK已经为我们安排好了一切，提供了一个”后门”，也就是下面要谈到的线程上下文类加载器。</p>
+<h2 id="线程上下文类加载器"><a href="#线程上下文类加载器" class="headerlink" title="线程上下文类加载器"></a>线程上下文类加载器</h2><p>&emsp;&emsp;我们在日常开发中几乎是碰不上线程上下文类加载器的，它只存在于JRE源码中。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/13/Kafka分区浅析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -759,7 +918,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -770,7 +929,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -781,7 +940,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
