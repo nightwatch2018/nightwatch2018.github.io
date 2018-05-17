@@ -94,19 +94,19 @@
 
 
 
-<meta name="description" content="这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：  最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认识的接口，然后去让app">
+<meta name="description" content="&amp;emsp;&amp;emsp;这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：  最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认">
 <meta name="keywords" content="JVM,类加载器">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM：类加载器浅析">
 <meta property="og:url" content="http://yoursite.com/2018/05/15/JVM：类加载器浅析/index.html">
 <meta property="og:site_name" content="只是想把事儿说明白">
-<meta property="og:description" content="这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：  最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认识的接口，然后去让app">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：  最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/image/parentClassLoaderModel.png">
-<meta property="og:updated_time" content="2018-05-15T13:22:10.162Z">
+<meta property="og:updated_time" content="2018-05-16T12:54:27.523Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM：类加载器浅析">
-<meta name="twitter:description" content="这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：  最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认识的接口，然后去让app">
+<meta name="twitter:description" content="&amp;emsp;&amp;emsp;这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：  最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认">
 <meta name="twitter:image" content="http://yoursite.com/image/parentClassLoaderModel.png">
 
 
@@ -374,7 +374,7 @@
       
 
       
-        <p>这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：</p>
+        <p>&emsp;&emsp;这两天在知识星球上看到了一个问题，正好是我想写的一个主题，该问题如下：</p>
 <blockquote>
 <p>最近在学习类加载器的时候遇到了一个问题，就是线程上下文类加载器，所有的资料都说是java提供标准，将接口在rt.jar中定义，但是具体实现由各大厂商实现，比如jdbc，我对此不太理解，为什么是核心类去加载具体的实现，而不是我发现一个不认识的类，去尝试用appclassloader加载，它扩展自一个不认识的接口，然后去让appclassloader加载这个接口，实际加载的是bootstrapclassloader，加载完接口再去用appclassloader去加载这个类。可能思维有些混乱。</p>
 </blockquote>
@@ -462,6 +462,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2018/05/17/Netty：官网初探及Hello Netty/" rel="prev" title="Netty：官网初探">
+                Netty：官网初探 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -545,7 +549,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -556,7 +560,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -567,7 +571,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
