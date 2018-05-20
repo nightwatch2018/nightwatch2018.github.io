@@ -366,71 +366,22 @@
 
       
         
-          
-            <p>&emsp;&emsp;上一篇中，我们在Netty官网上了解了它是什么，能做什么；接下来，我们来看看如何利用Netty提供的API来实现我们想要的功能。</p>
+          <p>&emsp;&emsp;上一篇中，我们在Netty官网上了解了它是什么，能做什么；接下来，我们来看看如何利用Netty提供的API来实现我们想要的功能。</p>
 <p>&emsp;&emsp;本篇的主旨是为了对Netty程序有个感性的认识，知道如何写个Netty程序即可，并不会做太过深入的探索。初学一门技术，切忌深入细节当中，要先学会如何使用，摸清套路后再根据这门技术的脉络深挖背后的实现细节及原理；避免一上来就感觉到受挫，以至于最终放弃而无任何突破。</p>
 <p>&emsp;&emsp;本篇示例代码均托管在GitHub上，有需要的话可自行<a href="https://github.com/nightwatch2018/netty4_lecture" target="_blank" rel="noopener">下载</a>。<br><br>&emsp;&emsp;运行环境如下：</p>
 <blockquote>
-<p>JDK：1.8.0_40<br><br>Netty:4.1.25.Final</p>
+<p>JDK：1.8.0_40<br><br>Netty：4.1.25.Final</p>
 </blockquote>
 <h3 id="HTTP服务器"><a href="#HTTP服务器" class="headerlink" title="HTTP服务器"></a>HTTP服务器</h3><p>&emsp;&emsp;这个例子中，我们来写一个简单的HTTP服务器。一上来就写个服务器，步子是不是迈大了？其实不然，Netty将底层细节封装得很精巧，对外暴露出的API足以让我们自由组合搭配实现想要的功能。</p>
 <p>&emsp;&emsp;通常情况下，实现一个Web服务器的最基本的思路就是让一个线程启动后就开始死循环，那么该线程就不会因为执行完所有代码后就退出了。也就是说，Web服务器刚启动后就退出，还如何接受来自客户端的大量请求，也总不能指定一个技术人员天天在电脑前面无限将服务器启动吧。</p>
 <p>&emsp;&emsp;基于这个常识，我们的Web服务器要有一个main方法，在其内部启动一个或N条线程，然后使这些几条线程死循环保持不退出并持续接受客户端的请求，我们熟知的Tomcat就是如此实现。Netty同样也是这个套路，那么来看一下main方法的代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">   public static void main(String[] args)throws Exception &#123;</span><br><span class="line">       // 1.实例化两个EventLoopGroup对象</span><br><span class="line">       EventLoopGroup bossGroup = new NioEventLoopGroup();</span><br><span class="line">	EventLoopGroup workerGroup = new NioEventLoopGroup();</span><br><span class="line">	try &#123;</span><br><span class="line">	    //2.实例化ServerBootstrap，用来配置服务器端的相关组件</span><br><span class="line">		ServerBootstrap serverBootstrap = new ServerBootstrap();</span><br><span class="line">		serverBootstrap.group(bossGroup,workerGroup).channel(NioServerSocketChannel.class)</span><br><span class="line">			.childHandler(new TestServerInitializer());</span><br><span class="line">		</span><br><span class="line">		//3.绑定监听端口</span><br><span class="line">		ChannelFuture channelFuture = serverBootstrap.bind(8899).sync();</span><br><span class="line">		channelFuture.channel().closeFuture().sync();</span><br><span class="line">	&#125; finally &#123;</span><br><span class="line">	    //4.优雅关闭两个EventLoopGroup对象</span><br><span class="line">		bossGroup.shutdownGracefully();</span><br><span class="line">		workerGroup.shutdownGracefully();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>&emsp;&emsp;这几行代码就是Netty服务器端程序的main方法的代码固定套路，适用于所有场景。我们来看一下这段代码中Netty的核心类及接口：</p>
-<p>&emsp;&emsp;1.EventLoopGroup和NioEventLoopGroup</p>
-<p>&emsp;&emsp;EventLoopGroup是一个接口，NioEventLoopGroup就是它的实现类。<br><br>&emsp;&emsp;这个接口字面意思是事件循环组，其底层就是一个死循环，不停地侦测I/O事件（比如连接的建立，数据的到来等），并对发生的I/O事件进行处理。这里的事件就是当用户的请求到来后，<strong>利用NIO中的Selector进行注册Channle（可以理解为跟客户端的连接）的操作</strong>。</p>
-<p>&emsp;&emsp;这里定义了两个该接口类型的对象，有什么作用呢？</p>
-<blockquote>
-<p>bossGroup，只负责接收客户端的连接请求并转发给workderGroup，不做具体的业务处理。<br><br>workerGroup，负责处理用户请求的业务逻辑。</p>
-</blockquote>
-<p>&emsp;&emsp;2.ServerBootstrap</p>
-<p>&emsp;&emsp;该类的作用类似于大管家，负责为服务器端组装必备的组件（包括我们自定义的业务处理器TestServerInitializer实例）和设置服务器的初始状态，随后绑定监听端口，使服务器正常启动工作。</p>
-<p>&emsp;&emsp;3.NioServerSocketChannel</p>
-<p>&emsp;&emsp;该类是基于NIO的Selector实现来去接收客户端的连接请求，这个就是服务器端内部运作的核心机制。</p>
-<p>&emsp;&emsp;4.ChannelFuture<br><br>&emsp;&emsp;用于获取异步I/O操作的结果或状态，这个类的作用不是那么好理解。是这样的，在Netty中，所有I/O操作都是异步执行的，也就是说，I/O操作被调用后会立即返回，并不保证真正的I/O操作在方法调用结束时完成。<strong>这种情况下有可能调用都返回了，I/O操作还没有执行完</strong>。<br><br>&emsp;&emsp;那么调用返回的就是这个ChannelFuture对象，将I/O操作的执行状态信息封装起来返回给调用方。</p>
-<p>接下来，我们来看看自定义的TestServerInitializer类的代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public class TestServerInitializer extends ChannelInitializer&lt;SocketChannel&gt;&#123;</span><br><span class="line">    	@Override</span><br><span class="line">    	protected void initChannel(SocketChannel ch) throws Exception &#123;</span><br><span class="line">    		ChannelPipeline pl = ch.pipeline();</span><br><span class="line">    		pl.addLast(&quot;httpServerCodec&quot;, new HttpServerCodec());</span><br><span class="line">    		pl.addLast(&quot;testHttpServerHandler&quot;, new TestHttpServerHandler());</span><br><span class="line">    		</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;这里有三个类比较重要：</p>
-<p>&emsp;&emsp;1.ChannelInitializer</p>
-<p>&emsp;&emsp;该抽象类实现了接口ChannelInboundHandler，也就是说它是个 入栈（inbound）的事件处理器，但跟其它有具体意义的事件处理器相比来说却又不同。我们来看下它的作用，当Channel已注册进事件循环(接口EventLoop)中，就会回调我们实现的initChannel()，方法里的逻辑就是将Netty内置的事件处理器（HttpServerCodec）以及我们业务相关的事件处理器（TestHttpServerHandler）一次性添加进ChannelPipeline中，这就是ChannelInitializer的唯一职责。<strong>这项工作完成后就会从ChannelPipeline移除掉，因为该事件处理器无任何业务意义</strong>。</p>
-<p>&emsp;&emsp;2.ChannelPipeline</p>
-<p>&emsp;&emsp;该类是事件处理器的一个集合，也可以看作是一个容器，主要负责处理或拦截Channel的入栈（inbound）事件和出栈（outbound）操作。它实现了一种高级的<a href="http://www.oracle.com/technetwork/java/interceptingfilter-142169.html" target="_blank" rel="noopener">拦截过滤器模式</a>，可以让我们控制如何处理事件以及pipeline中的事件处理器之间的交互方式。比如这个示例，我们把自定义的事件处理器放到了pipeline中的最后一位，也就是说先要执行Netty内置的事件处理器。<strong>再精确点说，其内部最终存放的是ChannelHandlerContext，只是间接的存放着ChannelHandler。</strong></p>
-<blockquote>
-<p>引用层次是这样的，Channel –&gt; ChannelPipeline –&gt; ChannelHandlerContext –&gt; ChannelHandler</p>
-</blockquote>
-<p>&emsp;&emsp;3.HttpServerCodec</p>
-<p>&emsp;&emsp;我们实现的是HTTP服务器，必然用到HTTP协议，而该类就是负责对HTTP协议进行编码和解码的事件处理器，这些事件处理器都实现了接口ChannelHandler。<a href="http://nighteye.top/2018/05/17/Netty%EF%BC%9A%E5%AE%98%E7%BD%91%E5%88%9D%E6%8E%A2%E5%8F%8AHello%20Netty/#more/" target="_blank" rel="noopener">上一篇</a>介绍过Netty有支持多种协议的组件，比如HTTP,Google Protobuf协议等，其实就是这些事件处理在发挥着作用。<strong>也就是说，如果我们需要根据不同的业务需要来定制功能，就需要选择Netty内置的事件处理器以实现特定的功能。</strong></p>
-<p>最后再来看一下我们的自定义事件处理器TestHttpServerHandler类的代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public class TestHttpServerHandler extends SimpleChannelInboundHandler&lt;HttpObject&gt;&#123;</span><br><span class="line">	@Override</span><br><span class="line">	protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception &#123;</span><br><span class="line">		if(msg instanceof HttpRequest)&#123;</span><br><span class="line">            //1.封装响应报文对象</span><br><span class="line">			ByteBuf content = Unpooled.copiedBuffer(&quot;Hello Netty&quot;,CharsetUtil.UTF_8);</span><br><span class="line">			FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,</span><br><span class="line">					HttpResponseStatus.OK,content);</span><br><span class="line">			//2.设置响应报文Header信息</span><br><span class="line">			response.headers().set(HttpHeaderNames.CONTENT_TYPE,&quot;text/plain&quot;);</span><br><span class="line">			response.headers().set(HttpHeaderNames.CONTENT_LENGTH,content.readableBytes());</span><br><span class="line">			//3.向客户端返回响应报文</span><br><span class="line">			ctx.writeAndFlush(response);</span><br><span class="line">			//4.关闭与客户端的连接</span><br><span class="line">			ctx.channel().close();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;这里有两个核心类需要说明：</p>
-<p>&emsp;&emsp;1.ChannelHandlerContext</p>
-<p>&emsp;&emsp;该类是ChannelPipeLine与ChannelHandler间的纽带，沟通的桥梁；在Netty中，ChannelHandlerContext是持有它们两个对象的引用。</p>
-<p>&emsp;&emsp;我们在上文ChannelPipeline中分析过该类，<strong>这里再补充一点是ChannelHandlerContext与ChannleHandler一一对应，也就是说，即使同一个ChannleHandler在同一个ChannelPipeline中添加多次，都会有与之对应的ChannelHandlerContext</strong>。</p>
-<p>&emsp;&emsp;2.SimpleChannelInboundHandler</p>
-<p>&emsp;&emsp;该类也是接口ChannelHandler和ChannelInboundHandler的实现类，这两个接口里面定义了大量的事件回调方法，其中就有个回调方法会调用我们写的这个channelRead0()的业务逻辑。<strong>看这个方法名也能知道，channelRead0()是在当前Channel发生读事件时被回调的</strong>。</p>
-<p>&emsp;&emsp;类名由Simple开头，意味着它会更简化我们的开发工作。主要体现在该类仅会处理特定类型的消息，也就是说开发人员不用去关注msg到底是什么类型的消息，也不用进行强制类型转换的操作了；因为该类设计成泛型，基于泛型替我们做了一次类型转换的操作。我们来看下其实现源码就更能清晰地理解这一点：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception &#123;</span><br><span class="line">        boolean release = true;</span><br><span class="line">        try &#123;</span><br><span class="line">            if (acceptInboundMessage(msg)) &#123;</span><br><span class="line">                @SuppressWarnings(&quot;unchecked&quot;)</span><br><span class="line">                //在这里替我们强制类型转换</span><br><span class="line">                I imsg = (I) msg;</span><br><span class="line">                channelRead0(ctx, imsg);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                release = false;</span><br><span class="line">                ctx.fireChannelRead(msg);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">            if (autoRelease &amp;&amp; release) &#123;</span><br><span class="line">                ReferenceCountUtil.release(msg);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;SimpleChannelInboundHandler是接口ChannelInboundHandler的实现类，在这个接口中定义的channelRead()的第二个参数就是Object类型。我们的代码示例中，消息的类型是HttpObject，也就是我们在channelRead0()方法中只关注与HTTP协议来进行业务逻辑的编写；在读事件发生时，SimpleChannelInboundHandler类就会调用我们自己编写的channelRead0()中的逻辑。</p>
-<p>&emsp;&emsp;以上通过分析了HTTP服务器示例代码，我们了解到开发一个Netty服务器程序的固定代码结构，那么客户端程序是什么结构呢？我们再来看个Socket示例代码。</p>
-<h3 id="Socket应用"><a href="#Socket应用" class="headerlink" title="Socket应用"></a>Socket应用</h3><p>&emsp;&emsp;我们在前面的HTTP服务器中用到了服务器端代码，在这个示例中，服务器端和客户端都会用到。服务器端代码不再赘述，都是一个固定的代码套路，这里只看一下客户端代码。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args) throws Exception &#123;</span><br><span class="line">		EventLoopGroup eventLoopGroup = new NioEventLoopGroup();</span><br><span class="line">		try&#123;</span><br><span class="line">			</span><br><span class="line">			Bootstrap bootstrap = new Bootstrap();</span><br><span class="line">			bootstrap.group(eventLoopGroup).channel(NioSocketChannel.class)</span><br><span class="line">				.handler(new MyClinetInitializer());</span><br><span class="line">			ChannelFuture future = bootstrap.connect(&quot;localhost&quot;, 8899).sync();</span><br><span class="line">			future.channel().closeFuture().sync();</span><br><span class="line">		&#125;finally&#123;</span><br><span class="line">			eventLoopGroup.shutdownGracefully();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;换成客户端之后就需要调用非Server开头的API，bind()替换成connect(),EventLoopGroup只需实例一个对象，因为客户端只是发送一个请求而已。可以看到，<strong>不论HTTP协议的，还是TCP协议的，服务器端和客户端的main()方法中的代码套路都是一样的</strong>，适用于所有场景。</p>
-<p>&emsp;&emsp;我们可以先思考一下，现在要开发Socket应用了，事件处理器就不能再继续用HTTP协议的了，因为换成了TCP协议。Netty同样内置了支持该协议的事件处理器，MyClinetInitializer类代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class MyClinetInitializer extends ChannelInitializer&lt;SocketChannel&gt;&#123;</span><br><span class="line"></span><br><span class="line">	@Override</span><br><span class="line">	protected void initChannel(SocketChannel ch) throws Exception &#123;</span><br><span class="line"></span><br><span class="line">		ChannelPipeline pipeline = ch.pipeline();</span><br><span class="line">		pipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,0,4,0,4));</span><br><span class="line">		pipeline.addLast(new LengthFieldPrepender(4));</span><br><span class="line">		pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));</span><br><span class="line">		pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));</span><br><span class="line">		</span><br><span class="line">		pipeline.addLast(new MyClientHandler());</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;服务器端跟客户端的事件处理器都是一一对应，不再贴出。</p>
-<p>&emsp;&emsp;Socket程序应用是基于TCP协议的服务器端/客户端模式，需要客户端主动给服务器端发送一个消息，这样才能两边进行通信。那么，就需要编写一个自定义的事件处理器来实现这个业务逻辑，MyClientHandler类代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">   @Override</span><br><span class="line">protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception &#123;</span><br><span class="line">	ctx.writeAndFlush(&quot;from client : &quot; + LocalDateTime.now());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 利用这个回调方法来打破客户端与服务器端都启动后双方无法接收消息的情况</span><br><span class="line"> * 实际运行结果就是服务器端和客户端无限打印接收到的消息</span><br><span class="line"> */</span><br><span class="line">@Override</span><br><span class="line">public void channelActive(ChannelHandlerContext ctx) throws Exception &#123;</span><br><span class="line">	ctx.writeAndFlush(&quot;from client&apos;s greeting!&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;服务器端和客户端都在channelRead0()里面实现了不同逻辑，不考虑添加channelActive()情况下，会出现什么情况？<strong>实际上客户端还是没有主动给服务器端发送任何的消息，所以需要重写channelActive()的代码，向服务器端发送一条消息，打通双方沉默的状态</strong>。</p>
-<p>&emsp;&emsp;channelActive()也是一个事件处理回调方法，表示当前channel注册进EventLoopGroup中后处于了活动状态。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>&emsp;&emsp;以上通过两个Netty程序展现了服务器端和客户端的固定编码套路，我们可以总结一下：</p>
-<blockquote>
-<p>1.编写main()方法，内部遵循着前文介绍的那些步骤；</p>
-<p>2.编写ChannelInitializer实现类，将用到的所有事件处理器按顺序放进ChannelPipeline中，最后存放我们自定义的业务相关的事件处理器；</p>
-<p>3.编写ChannelHandler实现类，一般情况下继承SimpleChannelInboundHandler及ChannelInboundHandlerAdapter即可。</p>
-</blockquote>
-<p>&emsp;&emsp;本篇的代码及各知识点都是零散地呈现出来，相关知识点只是粗略介绍一下而已，暂不成体系；后续会针对本篇提到过的类或接口进行深入的源码分析，以不同视角来欣赏Netty的精妙设计。</p>
-
-          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/20/Netty：如何编写一个Netty程序/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1305,6 +1256,12 @@
                         <i class="fa fa-fw fa-coffee"></i>JavaEye</a>
                   </span>
                 
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/nightwatch2018" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
             </div>
           
 
@@ -1321,7 +1278,7 @@
               <ul class="links-of-blogroll-list">
                 
                   <li class="links-of-blogroll-item">
-                    <a href="http://blog.aoshiguchen.com/" title="同窗的博客-傲世孤尘" target="_blank">同窗的博客-傲世孤尘</a>
+                    <a href="http://blog.aoshiguchen.com/" title="傲世孤尘" target="_blank">傲世孤尘</a>
                   </li>
                 
               </ul>
