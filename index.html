@@ -370,10 +370,7 @@
 <p>&emsp;&emsp;本篇的主旨是为了对Netty程序有个感性的认识，知道如何写个Netty程序即可，并不会做太过深入的探索。初学一门技术，切忌深入细节当中，要先学会如何使用，摸清套路后再根据这门技术的脉络深挖背后的实现细节及原理；避免一上来就感觉到受挫，以至于最终放弃而无任何突破。</p>
 <p>&emsp;&emsp;本篇示例代码均托管在GitHub上，有需要的话可自行<a href="https://github.com/nightwatch2018/netty4_lecture" target="_blank" rel="noopener">下载</a>。<br><br>&emsp;&emsp;运行环境如下：</p>
 <blockquote>
-<p>JDK：1.8.0_40<br><br>Netty：<br></p>
-<dependency><br><br>&emsp;&emsp;<groupid>io.netty</groupid><br><br>&emsp;&emsp;<artifactid>netty-all</artifactid><br><br>&emsp;&emsp;<version>4.1.25.Final</version><br><br></dependency>
-
-
+<p>JDK：1.8.0_40<br><br>Netty：4.1.25.Final</p>
 </blockquote>
 <h3 id="HTTP服务器"><a href="#HTTP服务器" class="headerlink" title="HTTP服务器"></a>HTTP服务器</h3><p>&emsp;&emsp;这个例子中，我们来写一个简单的HTTP服务器。一上来就写个服务器，步子是不是迈大了？其实不然，Netty将底层细节封装得很精巧，对外暴露出的API足以让我们自由组合搭配实现想要的功能。</p>
 <p>&emsp;&emsp;通常情况下，实现一个Web服务器的最基本的思路就是让一个线程启动后就开始死循环，那么该线程就不会因为执行完所有代码后就退出了。也就是说，Web服务器刚启动后就退出，还如何接受来自客户端的大量请求，也总不能指定一个技术人员天天在电脑前面无限将服务器启动吧。</p>
