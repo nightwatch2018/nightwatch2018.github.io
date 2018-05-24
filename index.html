@@ -274,6 +274,156 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/23/Netty：从应用程序的视角理解零拷贝/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="nightwatcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老学究的笔墨">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/23/Netty：从应用程序的视角理解零拷贝/" itemprop="url">Netty：从应用程序视角理解零拷贝</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-23T21:50:16+08:00">
+                2018-05-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开源框架/" itemprop="url" rel="index">
+                    <span itemprop="name">开源框架</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h3 id="传统I-O"><a href="#传统I-O" class="headerlink" title="传统I/O"></a>传统I/O</h3><p>&emsp;&emsp;<a href="http://nighteye.top/2018/05/17/Netty%EF%BC%9A%E5%AE%98%E7%BD%91%E5%88%9D%E6%8E%A2%E5%8F%8AHello%20Netty/" target="_blank" rel="noopener">第一篇</a>中我们看到了Netty的组件架构图，在核心组件中有一个叫做zero-copy（零拷贝）的组件，这篇我们就从应用程序的视角来理解一下它的机制以及隐藏在底层的细节。</p>
+<p>&emsp;&emsp;Zero-copy是基于硬件平台架构和操作系统内核API相结合的一种技术。那么我们来考虑一个问题，一种技术的出现无非至少有两种目的，一是实现新功能，二是解决现有的问题；zero-copy正是为了解决问题而诞生的。那么到底解决了什么问题呢？</p>
+<p>&emsp;&emsp;我们先来看一段客户端向服务器端上传视频文件的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">try&#123;</span><br><span class="line">    Socket socket = new Socket(&quot;localhost&quot;, 8899);</span><br><span class="line">    // 假设这个视频文件大约1个G</span><br><span class="line">    String fileName = &quot;D:/netty_test.mkv&quot;;</span><br><span class="line"></span><br><span class="line">    InputStream inputStream = new FileInputStream(fileName);</span><br><span class="line">    DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());</span><br><span class="line">    byte[] buffer = new byte[4096];</span><br><span class="line">    // 调用了read()</span><br><span class="line">    while ((readCount = inputStream.read(buffer)) &gt;= 0) &#123;</span><br><span class="line">        // 调用了write()</span><br><span class="line">        dataOutputStream.write(buffer);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;finally&#123;</span><br><span class="line">    dataOutputStream.close();</span><br><span class="line">    socket.close();</span><br><span class="line">    inputStream.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;很明显，zero-copy是跟I/O领域相关，有可能是网络I/O，也有可能是磁盘I/O。那么I/O领域最重要的两个操作就是读和写了，而zero-copy就是为了解决传统I/O读写效率低下的一项技术。有什么根据说传统I/O读写效率低呢？<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/23/Netty：从应用程序的视角理解零拷贝/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/20/Netty：如何编写一个Netty程序/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1237,7 +1387,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1259,7 +1409,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
