@@ -427,7 +427,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/17/Netty：官网初探及Hello Netty/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/20/Netty：官网初探及Hello Netty/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="nightwatcher">
@@ -446,7 +446,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/05/17/Netty：官网初探及Hello Netty/" itemprop="url">Netty：官网初探</a></h1>
+                <a class="post-title-link" href="/2018/05/20/Netty：官网初探及Hello Netty/" itemprop="url">Netty：如何编写一个Netty程序</a></h1>
         
 
         <div class="post-meta">
@@ -458,8 +458,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-17T19:13:16+08:00">
-                2018-05-17
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-20T12:32:37+08:00">
+                2018-05-20
               </time>
             
 
@@ -519,12 +519,17 @@
 
       
         
-          <p>&emsp;&emsp;首先和大家聊一聊我对学习方法论的一些思考。</p>
-<p>&emsp;&emsp;当我们去学习一个新框架的时候，一般都是去网上找几篇文章看一下或者买本书学习。<strong>我个人认为那些内容都是别人总结过后的，你得到的价值也就只是你能看到的那些，但是隐藏在背后的价值是作者本人的</strong>；包括你看我写的这篇博文也是一样，我的收获远远比你看到的价值更多，包括学习和思考能力等，这种价值我自称为隐形价值。</p>
-<p>&emsp;&emsp;我们不禁发问，要如何去积累属于自己的隐形价值？以这篇博文先开个头，呈现出我自己的方法论；也许我的方法未必适合你，这需要形成你自己的学习方法论，也就是俗称的套路，这样以后再遇到一个新框架的学习都能如法炮制，那时你积累的隐形价值会使你更加自信。</p>
+          <p>&emsp;&emsp;<a href="http://nighteye.top/2018/05/17/Netty%EF%BC%9A%E5%AE%98%E7%BD%91%E5%88%9D%E6%8E%A2%E5%8F%8AHello%20Netty/" target="_blank" rel="noopener">上一篇</a>中，我们在Netty官网上了解了它是什么，能做什么；接下来，我们来看看如何利用Netty提供的API来实现我们想要的功能。</p>
+<p>&emsp;&emsp;本篇的主旨是为了对Netty程序有个感性的认识，知道如何写个Netty程序即可，并不会做太过深入的探索。初学一门技术，切忌深入细节当中，要先学会如何使用，摸清套路后再根据这门技术的脉络深挖背后的实现细节及原理；避免一上来就感觉到受挫，以至于最终放弃而无任何突破。</p>
+<p>&emsp;&emsp;本篇示例代码均托管在GitHub上，有需要的话可自行<a href="https://github.com/nightwatch2018/netty4_lecture" target="_blank" rel="noopener">下载</a>。<br><br>&emsp;&emsp;运行环境如下：</p>
+<blockquote>
+<p>JDK：1.8.0_40<br><br>Netty：4.1.25.Final</p>
+</blockquote>
+<h3 id="HTTP服务器"><a href="#HTTP服务器" class="headerlink" title="HTTP服务器"></a>HTTP服务器</h3><p>&emsp;&emsp;这个例子中，我们来写一个简单的HTTP服务器。一上来就写个服务器，步子是不是迈大了？其实不然，Netty将底层细节封装得很精巧，对外暴露出的API足以让我们自由组合搭配实现想要的功能。</p>
+<p>&emsp;&emsp;通常情况下，实现一个Web服务器的最基本的思路就是让一个线程启动后就开始死循环，那么该线程就不会因为执行完所有代码后就退出了。也就是说，Web服务器刚启动后就退出，还如何接受来自客户端的大量请求，也总不能指定一个技术人员天天在电脑前面无限将服务器启动吧。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/05/17/Netty：官网初探及Hello Netty/#more" rel="contents">
+            <a class="btn" href="/2018/05/20/Netty：官网初探及Hello Netty/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
