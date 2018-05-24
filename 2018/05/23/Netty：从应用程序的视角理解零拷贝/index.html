@@ -97,7 +97,7 @@
 <meta name="description" content="传统I/O&amp;emsp;&amp;emsp;第一篇中我们看到了Netty的组件架构图，在核心组件中有一个叫做zero-copy（零拷贝）的组件，这篇我们就从应用程序的视角来理解一下它的机制以及隐藏在底层的细节。 &amp;emsp;&amp;emsp;Zero-copy是基于硬件平台架构和操作系统内核API相结合的一种技术。那么我们来考虑一个问题，一种技术的出现无非至少有两种目的，一是实现新功能，二是解决现有的问题；zer">
 <meta name="keywords" content="开源框架,Netty,零拷贝">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Netty：从应用程序视角理解零拷贝">
+<meta property="og:title" content="Netty：从应用程序的视角理解零拷贝">
 <meta property="og:url" content="http://yoursite.com/2018/05/23/Netty：从应用程序的视角理解零拷贝/index.html">
 <meta property="og:site_name" content="老学究的笔墨">
 <meta property="og:description" content="传统I/O&amp;emsp;&amp;emsp;第一篇中我们看到了Netty的组件架构图，在核心组件中有一个叫做zero-copy（零拷贝）的组件，这篇我们就从应用程序的视角来理解一下它的机制以及隐藏在底层的细节。 &amp;emsp;&amp;emsp;Zero-copy是基于硬件平台架构和操作系统内核API相结合的一种技术。那么我们来考虑一个问题，一种技术的出现无非至少有两种目的，一是实现新功能，二是解决现有的问题；zer">
@@ -105,9 +105,9 @@
 <meta property="og:image" content="http://yoursite.com/image/zero-copy1.png">
 <meta property="og:image" content="http://yoursite.com/image/zero-copy2.png">
 <meta property="og:image" content="http://yoursite.com/image/zero-copy3.png">
-<meta property="og:updated_time" content="2018-05-24T14:42:43.909Z">
+<meta property="og:updated_time" content="2018-05-24T15:15:26.565Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Netty：从应用程序视角理解零拷贝">
+<meta name="twitter:title" content="Netty：从应用程序的视角理解零拷贝">
 <meta name="twitter:description" content="传统I/O&amp;emsp;&amp;emsp;第一篇中我们看到了Netty的组件架构图，在核心组件中有一个叫做zero-copy（零拷贝）的组件，这篇我们就从应用程序的视角来理解一下它的机制以及隐藏在底层的细节。 &amp;emsp;&amp;emsp;Zero-copy是基于硬件平台架构和操作系统内核API相结合的一种技术。那么我们来考虑一个问题，一种技术的出现无非至少有两种目的，一是实现新功能，二是解决现有的问题；zer">
 <meta name="twitter:image" content="http://yoursite.com/image/zero-copy1.png">
 
@@ -145,7 +145,7 @@
 
 
 
-  <title>Netty：从应用程序视角理解零拷贝 | 老学究的笔墨</title>
+  <title>Netty：从应用程序的视角理解零拷贝 | 老学究的笔墨</title>
   
 
 
@@ -299,7 +299,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Netty：从应用程序视角理解零拷贝</h1>
+          <h1 class="post-title" itemprop="name headline">Netty：从应用程序的视角理解零拷贝</h1>
         
 
         <div class="post-meta">
@@ -420,7 +420,7 @@
 <blockquote>
 <p>&emsp;&emsp;1.DMA控制器把文件数据存储至内核空间的缓冲区中<br><br>&emsp;&emsp;3.DMA控制器利用gather机制从内核缓冲区和socket缓冲区中读取文件信息，并将数据拷贝至协议引擎中。</p>
 </blockquote>
-<p>&emsp;&emsp;我们不禁要问，还是存在拷贝操作，那这就是真正的零拷贝么？<strong>从操作系统的角度来看这就是零拷贝，因为在内核缓冲区中不再有重复的文件数据，也不用将数据在和应用程序空间当中来回拷贝</strong>。</p>
+<p>&emsp;&emsp;我们不禁要问，还是存在拷贝操作，那这就是真正的零拷贝么？<strong>从操作系统的角度来看这就是零拷贝，因为在内核缓冲区中不再有重复的文件数据，也不用将数据在内核空间与应用程序空间当中来回拷贝</strong>。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>&emsp;&emsp;我们通过以上的分析，从传统I/O读写方法到Java NIO提供的map()和transferTo()方法，了解到底层对于传输文件的操作细节。零拷贝消除了不必要的数据拷贝，得以让CPU做更多有意义的业务操作，提高了应用程序的执行效率。</p>
 <p>&emsp;&emsp;map()和transferto()对应于Linux平台的系统调用是mmap()和sendfile(),这两个系统调用是需要操作系统和硬件设备的支持才能发挥其功效，否则还是会退回到传统I/O的读写模式。</p>
 
