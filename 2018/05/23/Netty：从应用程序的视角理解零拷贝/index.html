@@ -105,7 +105,7 @@
 <meta property="og:image" content="http://yoursite.com/image/zero-copy1.png">
 <meta property="og:image" content="http://yoursite.com/image/zero-copy2.png">
 <meta property="og:image" content="http://yoursite.com/image/zero-copy3.png">
-<meta property="og:updated_time" content="2018-05-25T12:22:23.300Z">
+<meta property="og:updated_time" content="2018-05-25T13:11:24.016Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Netty：从应用程序的视角理解零拷贝">
 <meta name="twitter:description" content="传统I/O&amp;emsp;&amp;emsp;第一篇中我们看到了Netty的组件架构图，在核心组件中有一个叫做zero-copy（零拷贝）的组件，在Netty底层对高效数据传输发挥着重要的作用。这篇我们就从应用程序的视角来理解一下它的机制以及隐藏在背后的细节。 &amp;emsp;&amp;emsp;Zero-copy是基于操作系统内核和硬件平台相结合的一种技术。那么我们来考虑一个问题，一种技术的出现无非至少有两种目的，一是">
@@ -393,10 +393,10 @@
 </blockquote>
 <p>&emsp;&emsp;<strong>如果是那样的话，应用程序这一端只是充当了一个转发的角色，也就是说凭白多了两次上下文切换和两次拷贝的动作，这就是传统I/O操作效率低下的问题所在</strong>；假设并发量比较大的话，资源消耗还是很可观的，应用程序就没法搞了。</p>
 <p>&emsp;&emsp;那么如何才能减少拷贝的次数？从图中看，拷贝操作可以分为两段，前半段是应用程序空间与内核空间的两次，另一端是内核空间内部。理论上讲，减少前半段的拷贝操作是比较容易做到的，我们来看一下该怎么做。</p>
-<h3 id="Java-NIO的FileChannel-transferTo"><a href="#Java-NIO的FileChannel-transferTo" class="headerlink" title="Java NIO的FileChannel#transferTo()"></a>Java NIO的FileChannel#transferTo()</h3><p>&emsp;&emsp;transferTo()对应Linux平台的sendFile()，主要解决消除前半段多余的两次拷贝操作；其它平台均有各自的API提供相应的支持。</p>
+<h3 id="Java-NIO的FileChannel-transferTo"><a href="#Java-NIO的FileChannel-transferTo" class="headerlink" title="Java NIO的FileChannel#transferTo()"></a>Java NIO的FileChannel#transferTo()</h3><p>&emsp;&emsp;transferto()主要依赖于操作系统和硬件设备的支持才能发挥其功效，否则还是会退回到传统I/O的读写模式。其主要解决消除前半段多余的两次拷贝操作；其它平台均有各自的API提供相应的支持。</p>
 <p>&emsp;&emsp;我们来看下面的transferTo()示例代码：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String fileName = &quot;D:/netty_test.mkv&quot;;</span><br><span class="line">FileChannel fileChannel = new FileInputStream(fileName).getChannel();</span><br><span class="line">long transferCount = fileChannel.transferTo(0, fileChannel.size(), socketChannel);</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;上面的代码用到了FileChannel#transferTo()方法来替换传统的read()和write()，直接从本地channel直接传送至对端channel中，无须再拷贝至用户空间。</p>
+<p>&emsp;&emsp;transferTo()比一般的那种先读再写的循环模式效率要高很多，可以直接从本地channel直接传送至对端channel中，无须再拷贝至用户空间。</p>
 <p>&emsp;&emsp;时序图更能说明这个方法的效果：</p>
 <p><img src="/image/zero-copy2.png" alt="image"></p>
 <p>&emsp;&emsp;效果很明显，减少了两次多余的拷贝操作和两次上下文切换的开销，文件传输效率提高了一半。不过，在内核空间还是多了一次拷贝操作，也就是文件数据先到了内核缓冲区后，还要再拷贝至socket缓冲区中。</p>
@@ -410,8 +410,7 @@
 </blockquote>
 <p>&emsp;&emsp;第一个拷贝操作自始至终都会存在，诚然，有些硬件设备确实可以绕过主内存直接向另外的设备传输数据，但绝大部分硬件并不具备这样的特性，就此解答了上面的问题。</p>
 <p>&emsp;&emsp;我们不禁要问，还是存在拷贝操作，那这就是真正的零拷贝么？<strong>从操作系统的角度来看这就是零拷贝，因为在内核缓冲区中不再有重复的文件数据，也不用将数据在内核空间与应用程序空间当中来回拷贝</strong>。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>&emsp;&emsp;我们通过以上的分析，从传统I/O读写方法到Java NIO提供的transferTo()方法，了解到底层对于网络传输文件的操作细节。零拷贝技术消除了不必要的数据拷贝，得以让CPU做更多有意义的业务操作，提高了应用程序的执行效率。</p>
-<p>&emsp;&emsp;transferto()对应于Linux平台的系统调用是sendfile(),这个系统调用需要操作系统和硬件设备的支持才能发挥其功效，否则还是会退回到传统I/O的读写模式。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>&emsp;&emsp;我们从传统I/O读写模式到Java NIO的transferTo()，一共了解了三种网络传输文件的方式，逐步消除不必要的拷贝操作；每一次的解决方式，都更接近与技术底层，所以更需要我们计算机的基础打牢，这样才能轻松面对未来的技术挑战。</p>
 
       
     </div>
