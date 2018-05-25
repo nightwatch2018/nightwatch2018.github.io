@@ -105,7 +105,7 @@
 <meta property="og:image" content="http://yoursite.com/image/zero-copy1.png">
 <meta property="og:image" content="http://yoursite.com/image/zero-copy2.png">
 <meta property="og:image" content="http://yoursite.com/image/zero-copy3.png">
-<meta property="og:updated_time" content="2018-05-25T13:11:24.016Z">
+<meta property="og:updated_time" content="2018-05-25T13:12:49.426Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Netty：从应用程序的视角理解零拷贝">
 <meta name="twitter:description" content="传统I/O&amp;emsp;&amp;emsp;第一篇中我们看到了Netty的组件架构图，在核心组件中有一个叫做zero-copy（零拷贝）的组件，在Netty底层对高效数据传输发挥着重要的作用。这篇我们就从应用程序的视角来理解一下它的机制以及隐藏在背后的细节。 &amp;emsp;&amp;emsp;Zero-copy是基于操作系统内核和硬件平台相结合的一种技术。那么我们来考虑一个问题，一种技术的出现无非至少有两种目的，一是">
@@ -401,7 +401,7 @@
 <p><img src="/image/zero-copy2.png" alt="image"></p>
 <p>&emsp;&emsp;效果很明显，减少了两次多余的拷贝操作和两次上下文切换的开销，文件传输效率提高了一半。不过，在内核空间还是多了一次拷贝操作，也就是文件数据先到了内核缓冲区后，还要再拷贝至socket缓冲区中。</p>
 <p>&emsp;&emsp;那么内核为什么不直接将文件数据拷贝至socket缓冲区呢？要想回答此问题，就涉及到硬件设备了。</p>
-<h3 id="硬件支持"><a href="#硬件支持" class="headerlink" title="硬件支持"></a>硬件支持</h3><p>&emsp;&emsp;一般来说，硬件设备的直接内存访问机制最重要的一点就是需要数据是在一片连续的空间当中的，这就是在内核空间多了一次拷贝操作。而支持scatter/gather机制的话，就不需要线性的地址空间，允许设备将数据读入到多个缓冲区和从多个缓冲区中写出数据，在一定程度上能够消除那个多余的拷贝。  </p>
+<h3 id="硬件支持"><a href="#硬件支持" class="headerlink" title="硬件支持"></a>硬件支持</h3><p>&emsp;&emsp;一般来说，硬件设备的直接内存访问机制最重要的一点就是需要数据是在一片连续的空间当中的，这就是在内核空间多了一次拷贝操作的原因。而支持scatter/gather机制的话，就不需要线性的地址空间，允许设备将数据读入到多个缓冲区和从多个缓冲区中写出数据，在一定程度上能够消除那个多余的拷贝。  </p>
 <p>&emsp;&emsp;有了scatter/gather机制的支持，最终的零拷贝时序图如下：</p>
 <p><img src="/image/zero-copy3.png" alt="image"></p>
 <p>&emsp;&emsp;我们能看到，又消除了内核空间中的一次拷贝操作，使CPU资源得以充分的利用。现在的拷贝动作还剩下两个：</p>
