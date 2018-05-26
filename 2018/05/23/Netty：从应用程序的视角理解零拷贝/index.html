@@ -105,7 +105,7 @@
 <meta property="og:image" content="http://yoursite.com/image/zero-copy1.png">
 <meta property="og:image" content="http://yoursite.com/image/zero-copy2.png">
 <meta property="og:image" content="http://yoursite.com/image/zero-copy3.png">
-<meta property="og:updated_time" content="2018-05-25T13:12:49.426Z">
+<meta property="og:updated_time" content="2018-05-26T15:59:23.663Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Netty：从应用程序的视角理解零拷贝">
 <meta name="twitter:description" content="传统I/O&amp;emsp;&amp;emsp;第一篇中我们看到了Netty的组件架构图，在核心组件中有一个叫做zero-copy（零拷贝）的组件，在Netty底层对高效数据传输发挥着重要的作用。这篇我们就从应用程序的视角来理解一下它的机制以及隐藏在背后的细节。 &amp;emsp;&amp;emsp;Zero-copy是基于操作系统内核和硬件平台相结合的一种技术。那么我们来考虑一个问题，一种技术的出现无非至少有两种目的，一是">
@@ -411,6 +411,10 @@
 <p>&emsp;&emsp;第一个拷贝操作自始至终都会存在，诚然，有些硬件设备确实可以绕过主内存直接向另外的设备传输数据，但绝大部分硬件并不具备这样的特性，就此解答了上面的问题。</p>
 <p>&emsp;&emsp;我们不禁要问，还是存在拷贝操作，那这就是真正的零拷贝么？<strong>从操作系统的角度来看这就是零拷贝，因为在内核缓冲区中不再有重复的文件数据，也不用将数据在内核空间与应用程序空间当中来回拷贝</strong>。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>&emsp;&emsp;我们从传统I/O读写模式到Java NIO的transferTo()，一共了解了三种网络传输文件的方式，逐步消除不必要的拷贝操作；每一次的解决方式，都更接近与技术底层，所以更需要我们计算机的基础打牢，这样才能轻松面对未来的技术挑战。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://www.linuxjournal.com/article/6345" target="_blank" rel="noopener">Zero Copy I: User-Mode Perspective</a></li>
+<li><a href="http://xcorpion.tech/2016/09/10/It-s-all-about-buffers-zero-copy-mmap-and-Java-NIO/" target="_blank" rel="noopener">It’s all about buffers: zero-copy, mmap and Java NIO</a></li>
+</ul>
 
       
     </div>
@@ -623,7 +627,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#传统I-O"><span class="nav-number">1.</span> <span class="nav-text">传统I/O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java-NIO的FileChannel-transferTo"><span class="nav-number">2.</span> <span class="nav-text">Java NIO的FileChannel#transferTo()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#硬件支持"><span class="nav-number">3.</span> <span class="nav-text">硬件支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#传统I-O"><span class="nav-number">1.</span> <span class="nav-text">传统I/O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java-NIO的FileChannel-transferTo"><span class="nav-number">2.</span> <span class="nav-text">Java NIO的FileChannel#transferTo()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#硬件支持"><span class="nav-number">3.</span> <span class="nav-text">硬件支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
