@@ -370,10 +370,10 @@
             <p>&emsp;&emsp;Reactor模式又是学习Netty绕不开的一环，而且又是Netty框架设计的基石，其中有很多地方都与之重合，因此我们先来了解一下该模式的组件和运行机理。</p>
 <h2 id="传统网络服务器"><a href="#传统网络服务器" class="headerlink" title="传统网络服务器"></a>传统网络服务器</h2><p>&emsp;&emsp;在现有的Linux平台上，服务器多以单进程的模式来运行并响应客户端的请求，其中又分为单线程或多线程模式，本篇不考虑多进程的情况。</p>
 <p>&emsp;&emsp;当多个客户端并发访问服务器端时，单线程模式如下图：</p>
-<p><img src="/images/reactor-server-singlethread.png" alt="image"></p>
+<p><img src="/image/reactor-server-singlethread.png" alt="image"></p>
 <p>&emsp;&emsp;从图中我们能看到，多个请求会被服务器依次响应，响应操作由网络I/O+CPU计算组成。假设平均一次请求耗时1S，那么第五个请求耗时就需要5S。显而易见，效率极其低下。<strong>服务器是单线程运行的，只能一个一个响应客户端的请求</strong>；还有就是不能充分利用CPU的资源，其中一部分的耗时操作全在等待网络I/O，也就是等待网络数据的能够进行读写操作的耗时。由此请求在大部分时间得不到执行，导致吞吐量的降低。</p>
 <p>&emsp;&emsp;那么我们替换成多线程模式来运行服务器，效果会怎么样呢？</p>
-<p><img src="/images/reactor-server-multiplethreads.png" alt="image"></p>
+<p><img src="/image/reactor-server-multiplethreads.png" alt="image"></p>
 <p>&emsp;&emsp;现在是一条线程对应一个请求了，效率就比单线程模式的好很多。<strong>因为当某个请求在等待网络I/O数据准备就绪的时候，其所属的线程就是自行呈阻塞状态，放弃CPU的使用权，直到内核的唤醒</strong>。这样的话其它请求就可以利用CPU的资源来进行请求处理，也就是不见得第一个进来的请求就会第一个响应给客户端，比单线程模式能够响应更多的请求，提高了服务器的吞吐量。</p>
 <p>&emsp;&emsp;可惜这个多线程模式的服务器还是会有问题。假设这么一个场景，高并发情况下，大量用户请求涌进来，那么服务器就需要支持每一个请求，也就是维持着相应数量的线程;而操作系统支持的线程数量是有限的，并且每条线程都会占用一定的内存资源。并发量不断增大的话，会出现下面三种（但不限于）情况，：</p>
 <ul>
@@ -399,7 +399,7 @@
 <h2 id="Reactor模式介绍及设计思想"><a href="#Reactor模式介绍及设计思想" class="headerlink" title="Reactor模式介绍及设计思想"></a>Reactor模式介绍及设计思想</h2><p>&emsp;&emsp;Douglas C. Schmidt教授在1995年提出了一篇关于Reactor模式的论文，并详细阐述了该模式如何解决这个问题的。</p>
 <p>&emsp;&emsp;其思想就是利用了关注分离（Separation of concerns，SOC）的设计原则将独立于应用程序的操作与特定于应用程序的操作进行分离。对于本文讨论的场景，依赖于Linux平台的多路复用技术来监控那些I/O的状态，并将它们抽象成一种事件模型；每当事件发生，就触发一次与之对应的事件处理操作。</p>
 <p>&emsp;&emsp;这里引用原文的经典OMT图，从三个方面对Reactor进行建模，每个模型从一个侧面反映系统的特性，三个模型分别是对象模型、动态模型和功能模型，如下图：</p>
-<p><img src="/images/reactor-uml.png" alt="image"></p>
+<p><img src="/image/reactor-uml.png" alt="image"></p>
 <h4 id="组件概览"><a href="#组件概览" class="headerlink" title="组件概览"></a>组件概览</h4><p>&emsp;&emsp;1.Handle（windows句柄，linux描述符）<br><br>&emsp;&emsp;本质上表示一种资源，是由操作系统提供的。该资源用于表示一个个的事件，比如说文件描述符，或是针对网络编程中的Socket描述符。事件既可以来自外部，也可以来自内部；外部事件比如说客户端的连接请求，客户端发送过来的数据等；内部事件比如说操作系统产生的定时器事件等。<strong>相当于就是一个文件描述符，事件产生的发源地</strong>。</p>
 <p>&emsp;&emsp;2.Synchronous Event Demultiplexer（同步事件分离器，多路复用））<br><br>&emsp;&emsp;它本身是一个系统调用，用于等待事件的发生（事件可能是一个，也可能是多个）。调用方调用它的时候会被阻塞，一直阻塞到同步事件分离器上有事件产生为止。对于Linux来说，同步事件分离器指的就是常用的I/O多路复用，比如说select、poll、epoll等。对应于NIO的组件是Selector，对应的阻塞方法是select()。<strong>相当于可以侦听多个客户端的请求并一并通知给应用程序</strong>。</p>
 <p>&emsp;&emsp;3.EventHandle（事件处理器））<br><br>&emsp;&emsp;本身由多个回调方法构成，这些回调方法构成了与应用相关的对于某个事件的反馈机制。</p>
