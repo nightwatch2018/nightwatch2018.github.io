@@ -274,6 +274,224 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/05/Netty：Reactor模式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="nightwatcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老学究的笔墨">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/05/Netty：Reactor模式/" itemprop="url">Netty：Reactor模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-05T23:36:16+08:00">
+                2018-06-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开源框架/" itemprop="url" rel="index">
+                    <span itemprop="name">开源框架</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>&emsp;&emsp;Reactor模式又是学习Netty绕不开的一环，而且又是Netty框架设计的基石，其中有很多地方都与之重合，因此我们先来了解一下该模式的组件和运行机理。</p>
+<h2 id="传统网络服务器"><a href="#传统网络服务器" class="headerlink" title="传统网络服务器"></a>传统网络服务器</h2><p>&emsp;&emsp;在现有的Linux平台上，服务器多以单进程的模式来运行并响应客户端的请求，其中又分为单线程或多线程模式，本篇不考虑多进程的情况。</p>
+<p>&emsp;&emsp;当多个客户端并发访问服务器端时，单线程模式如下图：</p>
+<p><img src="/images/reactor-server-singlethread.png" alt="image"></p>
+<p>&emsp;&emsp;从图中我们能看到，多个请求会被服务器依次响应，响应操作由网络I/O+CPU计算组成。假设平均一次请求耗时1S，那么第五个请求耗时就需要5S。显而易见，效率极其低下。<strong>服务器是单线程运行的，只能一个一个响应客户端的请求</strong>；还有就是不能充分利用CPU的资源，其中一部分的耗时操作全在等待网络I/O，也就是等待网络数据的能够进行读写操作的耗时。由此请求在大部分时间得不到执行，导致吞吐量的降低。</p>
+<p>&emsp;&emsp;那么我们替换成多线程模式来运行服务器，效果会怎么样呢？</p>
+<p><img src="/images/reactor-server-multiplethreads.png" alt="image"></p>
+<p>&emsp;&emsp;现在是一条线程对应一个请求了，效率就比单线程模式的好很多。<strong>因为当某个请求在等待网络I/O数据准备就绪的时候，其所属的线程就是自行呈阻塞状态，放弃CPU的使用权，直到内核的唤醒</strong>。这样的话其它请求就可以利用CPU的资源来进行请求处理，也就是不见得第一个进来的请求就会第一个响应给客户端，比单线程模式能够响应更多的请求，提高了服务器的吞吐量。</p>
+<p>&emsp;&emsp;可惜这个多线程模式的服务器还是会有问题。假设这么一个场景，高并发情况下，大量用户请求涌进来，那么服务器就需要支持每一个请求，也就是维持着相应数量的线程;而操作系统支持的线程数量是有限的，并且每条线程都会占用一定的内存资源。并发量不断增大的话，会出现下面三种（但不限于）情况，：</p>
+<ul>
+<li>导致频繁的线程上下文切换</li>
+<li>内存占用过高，导致不断的虚拟内存页换进换出</li>
+<li>达到线程数量限制以至于后续的请求接不进来</li>
+</ul>
+<p>&emsp;&emsp;根据以上操作系统也会负重不堪，请求的响应时间会急剧拉长。</p>
+<p>&emsp;&emsp;既然这样，我们就限制服务器的线程数量，让它降到合理的范围内，使服务器保持常规的响应时间，然后再横向扩展，多部署几台服务器以支撑大量的请求。这个方案看着可行，但是每台服务器的吞吐量上不去了，也就是其实际处理的具体请求数量降低了。<strong>因为每条线程处理的一次请求当中还是夹杂着网络I/O的操作，有一部分时间都是处于阻塞状态</strong>。由此只能是无限的增加服务器，成本也随之加大。</p>
+<p>&emsp;&emsp;基于以上的问题，我们需要寻找突破口，也就是让CPU充分运行客户端具体的请求，而不是那些无谓的等待和切换操作。</p>
+<p>&emsp;&emsp;我们来这么分析一下，通常服务器端响应客户端请求时有六个主要操作：</p>
+<blockquote>
+<ol>
+<li>建立连接，接受或拒绝客户端连接请求。</li>
+<li>读取请求，通过网络读取HTTP请求报文。</li>
+<li>解析请求（解码），对HTTP请求报文进行解析，比如解析请求行、请求头、请求体等内容。</li>
+<li>处理请求，根据请求报文进行对应的请求处理。</li>
+<li>构建响应（编码），生成HTTP响应报文。</li>
+<li>发送响应，向客户端发送生成的响应报文。</li>
+</ol>
+</blockquote>
+<p>&emsp;&emsp;每一个客户端向服务器端发起一次资源请求，这六个操作都是要在服务器端参与其中的。通过观察，1，2，6属于I/O型操作，3，4，5属于CPU型操作。<strong>也就是说，一条线程里面真正请求处理的操作需要等待那几个I/O操作准备就绪时才能进行，这无形中浪费了大量资源，降低了服务器的吞吐量</strong>。此时，我们能想到的就是将这两种类型的操作进行拆分，使I/O操作不会阻塞请求处理的操作，那么如何做呢？</p>
+<h2 id="Reactor模式介绍及设计思想"><a href="#Reactor模式介绍及设计思想" class="headerlink" title="Reactor模式介绍及设计思想"></a>Reactor模式介绍及设计思想</h2><p>&emsp;&emsp;Douglas C. Schmidt教授在1995年提出了一篇关于Reactor模式的论文，并详细阐述了该模式如何解决这个问题的。</p>
+<p>&emsp;&emsp;其思想就是利用了关注分离（Separation of concerns，SOC）的设计原则将独立于应用程序的操作与特定于应用程序的操作进行分离。对于本文讨论的场景，依赖于Linux平台的多路复用技术来监控那些I/O的状态，并将它们抽象成一种事件模型；每当事件发生，就触发一次与之对应的事件处理操作。</p>
+<p>&emsp;&emsp;这里引用原文的经典OMT图，从三个方面对Reactor进行建模，每个模型从一个侧面反映系统的特性，三个模型分别是对象模型、动态模型和功能模型，如下图：</p>
+<p><img src="/images/reactor-uml.png" alt="image"></p>
+<h4 id="组件概览"><a href="#组件概览" class="headerlink" title="组件概览"></a>组件概览</h4><p>&emsp;&emsp;1.Handle（windows句柄，linux描述符）<br><br>&emsp;&emsp;本质上表示一种资源，是由操作系统提供的。该资源用于表示一个个的事件，比如说文件描述符，或是针对网络编程中的Socket描述符。事件既可以来自外部，也可以来自内部；外部事件比如说客户端的连接请求，客户端发送过来的数据等；内部事件比如说操作系统产生的定时器事件等。<strong>相当于就是一个文件描述符，事件产生的发源地</strong>。</p>
+<p>&emsp;&emsp;2.Synchronous Event Demultiplexer（同步事件分离器，多路复用））<br><br>&emsp;&emsp;它本身是一个系统调用，用于等待事件的发生（事件可能是一个，也可能是多个）。调用方调用它的时候会被阻塞，一直阻塞到同步事件分离器上有事件产生为止。对于Linux来说，同步事件分离器指的就是常用的I/O多路复用，比如说select、poll、epoll等。对应于NIO的组件是Selector，对应的阻塞方法是select()。<strong>相当于可以侦听多个客户端的请求并一并通知给应用程序</strong>。</p>
+<p>&emsp;&emsp;3.EventHandle（事件处理器））<br><br>&emsp;&emsp;本身由多个回调方法构成，这些回调方法构成了与应用相关的对于某个事件的反馈机制。</p>
+<p>&emsp;&emsp;4.Concrete Event Handler（具体的事件处理器））<br><br>&emsp;&emsp;它是事件处理器的具体实现，实现了事件处理器所提供的各个回调方法，从而实现了特定业务逻辑。<strong>相当于我们自己开发的特定于应用程序的业务逻辑</strong>。</p>
+<p>&emsp;&emsp;5.Initiation Dispatcher（初始分发器））<br><br>&emsp;&emsp;实际上就是Reactor角色，本身定义了一些规范，用于控制事件的调度方法，同时又提供了应用进行事件处理器的注册、删除等设施。<br>&emsp;&emsp;该角色是整个事件处理器的核心，会通过同步事件分离器来等待事件的发生，一旦事件发生，首先会分离出每一个事件，然后调用事件处理器，最后调用相关的回调方法来处理这些事件。<strong>相当于调度某个请求从接收到响应的整个流程</strong>。</p>
+<h4 id="组件交互"><a href="#组件交互" class="headerlink" title="组件交互"></a>组件交互</h4><p>&emsp;&emsp;1. 当应用程序向Initiation Dispatcher注册具体的事件处理器时，会标识出某个具体的事件，也就是事件处理器希望Initiation Dispatcher在某个事件发生时向其通知它所关注的那个与Handle关联的特定事件。</p>
+<p>&emsp;&emsp; 2. Initiation Dispatcher会要求每个事件处理器向其传递内部的Handle，该Handle向操作系统标识了事件处理器。    </p>
+<p>&emsp;&emsp;3. 当所有的事件处理注册完毕后，应用会调用handle_events方法来启动Initiation Dispatcher的事件循环。这时，InitiationDispatcher会将每个注册的事件管理器的handle合并起来（比如会放到一个集合里面），并使用Synchronous Event Demultiplexer（操作系统层面）等待这些事件的发生。比如说，TCP协议层会使用select同步事件分离器来等待客户端发来的数据达到连接的socket handle上。</p>
+<p>&emsp;&emsp;4.当与某个事件源对应的Handle变为ready状态时（比如说，TCP的socket变为等待读状态时），Synchronous Event Demultiplexer就会通知Initiation Dispatcher。</p>
+<p>&emsp;&emsp;5. Initiation Dispatcher会触发事件处理器的回调方法，从而响应这个处于ready状态的handle。当事件发生时，Initiation Dispatcher会将事件源激活的Handle作为key来寻找并分发恰当的事件处理器回调方法。</p>
+<p>&emsp;&emsp;6.Initiation Dispatcher会回调事件处理器的handle_events方法来执行特定于应用的功能（开发者自己所编写的功能），从而响应这个事件。所发生的事件类型（只是通过Handle无法区分事件是什么，因为所有事件都发生在一个Handle上）可以作为该方法的参数并被该方法内部使用来执行额外的特定于服务的分离与分发。</p>
+<h2 id="深入理解"><a href="#深入理解" class="headerlink" title="深入理解"></a>深入理解</h2><p>&emsp;&emsp;我们初步了解了Reactor模式的组件及交互流程，基于此，我们来进行一次逆向思考，为什么需要这么组件呢？交互模式又是为什么是这样？</p>
+<p>&emsp;&emsp;之前已经讨论过，一次请求分为I/O和业务逻辑的操作，这两种类型的操作彼此之间是有一定联系的。比如read操作，先要由服务器端的网卡一块一块地将客户端发送过来的请求包接收进来，并组装成一个完整的数据包并拷贝内核空间，然后再拷贝应用程序空间，这样应用程序才可以执行相应的业务逻辑代码。</p>
+<p>&emsp;&emsp;值得注意的是，<strong>要想完成真正的业务逻辑，需要准备好相应的网络数据，并且这种关系是要在一条线程里面来维持的，换句话说，线程会阻塞住自己以等待网络数据，之后被唤醒再执行对应的业务逻辑操作，这就是多线程服务器性能低下的主要原因所在</strong>。</p>
+<p>&emsp;&emsp;我们归纳一下，等待网络数据准备就绪是执行特定业务逻辑的前提，那么可将这关系中的两者分离出来，也就是让每种操作在不同的线程中执行，而不至于一条线程持续那么长时间。就此再考虑一个问题，不同操作会分离到不同线程中执行，那么线程一个IO线程对应一个业务处理线程么？</p>
+<p>&emsp;&emsp;显然是不可能的。我们需要根据这两种类型操作的特点，采取不同的线程分配策略来处理，也就是将线程也分为两类，I/O线程和业务处理线程。I/O操作有可能会阻塞住线程，分配再多的线程也提升不了多大的性能，索性就分配就少量线程来执行I/O操作；业务处理操作在拿到数据后就能马上干活，能快速响应客户端的请求，就可以划分一定数量的线程，充分利用CPU的资源以支持更多客户端的响应。采取这样的分配策略，就能有效地利用有限的资源，对服务器的性能和吞吐量提高很大。</p>
+<p>&emsp;&emsp;那么如何再将这两种操作整合并协调配合以响应客户端的请求？再讨论之前，我们还需要理解这个设计模式为什么叫Reactor？</p>
+<p>&emsp;&emsp;Reactor在英文中有这么几个中文翻译，反应器、核反应堆。一般情况下都会翻译成反应器，但是本文会用核反应堆的这个概念来进行阐述。</p>
+<p>&emsp;&emsp;首先来看看核反应的基本原理：</p>
+<blockquote>
+<p>原子由原子核与核外电子组成。原子核由质子与中子组成。当铀—238的原子核受到外来中子轰击时，一个原子核会吸收一个中子分裂成两个质量较小的原子核，同时放出2—3个中子。这裂变产生的中子又去轰击另外的铀—235原子核，引起新的裂变。如此持续进行就是裂变的链式反应。链式反应产生大量热能。</p>
+</blockquote>
+<p>&emsp;&emsp;上面的解释中有一个关键词，链式反应。一个原子核与一个外部的中子相遇时，会分裂出另外的原子核和中子，射出的中子又会与其他的原子核相遇后，再次裂变，反反复复，形成连锁反应，释放出的能量无限增长。</p>
+<p>&emsp;&emsp;那么再切回到本文的主题，Reactor模式运行起来后也是一种连锁反应。我们可以认为一次I/O操作就是一个触发器，一旦数据准备就绪就意味着服务器可以执行相应的业务逻辑代码（这句话不断地再重复）。下面来看一下利用Reactor模式的客户端与服务端交互流程：</p>
+<ul>
+<li>服务器端监听着某个固定端口（比如80）并等待着客户端的连接，可以想到，服务器已建立好一个socket，并无限循环监控着该socket上的状态变化；</li>
+<li>客户端与服务器端建立连接，这是一个网络I/O操作；</li>
+<li>服务器端检测到socket上有客户端的请求到来，并与之建立，形成另外一个新socket；</li>
+<li>建立成功后，服务器有可能另起一条线程，再去检测建立新的socket中是否有网络数据的到来，也就是是否可读；</li>
+<li>一旦该socket有数据到来并完成传输，那么又会另分配一条线程来读取数据以执行业务逻辑，以处理真正的客户端请求。</li>
+<li>执行完业务逻辑之后，服务器还会再检测那个新socket是否可将结果响应给客户端；</li>
+<li>一般情况下，均是处理完业务逻辑后，直接往新socket里面写入数据而不用再检测socket的的可写事件，并等待网卡将最终的结果响应给客户端。</li>
+</ul>
+<p>&emsp;&emsp;以上就是由一个连接建立的触发点开始，引起后续一系列的操作，直至响应客户端请求。</p>
+<p>&emsp;&emsp;这时我们再反过来看Reactor模式的组件及交互流程就很容易理解了，再抽象一层来说，这是一种事件驱动的设计模式。<strong>一个事件会引发另外一个事件，相应的业务逻辑处理也会不一样</strong>。当大量的请求到来时，Linux平台的内核利用epoll()系统调用来轮询检测多个socket，只要其中一个socket有状态变化，也就是在某个socket上发生了一种事件，那么就返回给服务器，此刻就会逐一做出某种反应（与该事件对应的业务处理）。</p>
+<p>&emsp;&emsp;我们就能够用少量的I/O线程就足以应对大量的客户端请求，每当这些请求的I/O事件触发时，服务器就会依次分发给对应的事件处理器并且为其分配一条单独的线程。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;至此，我们从一开始传统单线程网络服务器到Reactor模式的服务器，一步一步解决了性能瓶颈问题，从中也见识到了业界大师的智慧。Reactor模式又是众多设计模式和架构设计原则组合而成的精妙产物，其中就有来自于Schmidt教授自己的<em>Acceptor and Connector</em>模式。</p>
+<p>&emsp;&emsp;网络编程架构不断在演进，目的只有一个，就是让操作系统中有限的资源（主要是CPU、内存）得以充分的利用，使服务器能够响应更多的真正请求操作，而摒弃那些无谓的辅助性操作（比如线程的上下文切换）。</p>
+<p>&emsp;&emsp;另外文中有大量不断重复和啰嗦的言辞，旨在加深理解，因为每一次读到时，在不同的上下文中总会有不一样的理解。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://www.cs.wustl.edu/~schmidt/PDF/reactor-siemens.pdf" target="_blank" rel="noopener">An Object Behavioral Pattern for Demultiplexing and Dispatching Handles for Synchronous Events</a></li>
+<li><a href="http://pdfs.semanticscholar.org/3ae4/4bf845b97a175876c1b7bb5774967b23aba8.pdf" target="_blank" rel="noopener">Acceptor and Connector: Design Patterns for Initializing Communication Services</a></li>
+<li><a href="http://gee.cs.oswego.edu/dl/cpjslides/nio.pdf" target="_blank" rel="noopener">Scalable IO in Java</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/23/Netty：从应用程序的视角理解零拷贝/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1387,7 +1605,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1409,7 +1627,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
